@@ -9,6 +9,7 @@ import pandas as pd
 from cat_content_analyzer import CatContentAnalyzer
 from PIL import Image
 import io
+import sqlite3
 
 # Set page config
 st.set_page_config(
@@ -313,6 +314,129 @@ def view_analytics():
         daily_posts = history_df.resample('D', on='Posted At').size()
         st.line_chart(daily_posts)
 
+def view_database():
+    """View and manage the SQLite database."""
+    st.header("Database Management")
+    
+    # Connect to database
+    conn = sqlite3.connect('cat_content.db')
+    
+    # Sidebar for table selection
+    tables = ['content_analysis', 'category_scores', 'posting_history']
+    selected_table = st.selectbox("Select Table to View", tables)
+    
+    # Query builder
+    st.subheader(f"View {selected_table}")
+    
+    # Get table schema
+    cursor = conn.cursor()
+    cursor.execute(f"PRAGMA table_info({selected_table})")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    # Create query options
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        # Filter options
+        filter_column = st.selectbox("Filter by column", ["None"] + columns)
+        if filter_column != "None":
+            filter_value = st.text_input("Filter value")
+    
+    with col2:
+        # Sort options
+        sort_column = st.selectbox("Sort by", ["None"] + columns)
+        if sort_column != "None":
+            sort_order = st.radio("Sort order", ["ASC", "DESC"])
+    
+    # Build and execute query
+    query = f"SELECT * FROM {selected_table}"
+    params = []
+    
+    if filter_column != "None" and filter_value:
+        query += f" WHERE {filter_column} LIKE ?"
+        params.append(f"%{filter_value}%")
+    
+    if sort_column != "None":
+        query += f" ORDER BY {sort_column} {sort_order}"
+    
+    # Execute query and display results
+    try:
+        df = pd.read_sql_query(query, conn, params=params)
+        st.dataframe(df, use_container_width=True)
+        
+        # Export options
+        if not df.empty:
+            csv = df.to_csv(index=False)
+            st.download_button(
+                "Download as CSV",
+                csv,
+                f"{selected_table}.csv",
+                "text/csv",
+                key=f'download_{selected_table}'
+            )
+    except Exception as e:
+        st.error(f"Error querying database: {e}")
+    
+    # Database statistics
+    st.subheader("Database Statistics")
+    stats_col1, stats_col2, stats_col3 = st.columns(3)
+    
+    with stats_col1:
+        cursor.execute(f"SELECT COUNT(*) FROM {selected_table}")
+        total_rows = cursor.fetchone()[0]
+        st.metric("Total Rows", total_rows)
+    
+    with stats_col2:
+        if selected_table == 'content_analysis':
+            cursor.execute("SELECT AVG(total_score) FROM content_analysis")
+            avg_score = cursor.fetchone()[0]
+            st.metric("Average Score", f"{avg_score:.1f}" if avg_score else "N/A")
+    
+    with stats_col3:
+        if selected_table == 'posting_history':
+            cursor.execute("SELECT COUNT(DISTINCT platform) FROM posting_history")
+            platform_count = cursor.fetchone()[0]
+            st.metric("Active Platforms", platform_count)
+    
+    # Database maintenance
+    st.subheader("Database Maintenance")
+    maintenance_col1, maintenance_col2 = st.columns(2)
+    
+    with maintenance_col1:
+        if st.button("Vacuum Database"):
+            try:
+                cursor.execute("VACUUM")
+                st.success("Database optimized successfully")
+            except Exception as e:
+                st.error(f"Error optimizing database: {e}")
+    
+    with maintenance_col2:
+        if st.button("Export Full Database"):
+            try:
+                # Export all tables
+                tables_data = {}
+                for table in tables:
+                    tables_data[table] = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+                
+                # Create JSON string
+                json_data = {
+                    table: df.to_dict(orient='records') 
+                    for table, df in tables_data.items()
+                }
+                
+                st.download_button(
+                    "Download Full Database",
+                    json.dumps(json_data, indent=2),
+                    "database_export.json",
+                    "application/json",
+                    key='download_full_db'
+                )
+            except Exception as e:
+                st.error(f"Error exporting database: {e}")
+    
+    # Close connection
+    conn.close()
+
 def main():
     st.title("🐱 Cat Content Control Center")
     
@@ -340,8 +464,8 @@ def main():
     with st.sidebar:
         selected = option_menu(
             "Navigation",
-            ["Content Analysis", "Post Management", "Analytics"],
-            icons=['camera-fill', 'calendar-check-fill', 'graph-up-arrow'],
+            ["Content Analysis", "Post Management", "Analytics", "Database Management"],
+            icons=['camera-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
             menu_icon="house-door-fill",
             default_index=0,
             styles={
@@ -383,6 +507,9 @@ def main():
     elif selected == "Analytics":
         st.header("Analytics")
         view_analytics()
+    
+    elif selected == "Database Management":
+        view_database()
 
 if __name__ == "__main__":
     main() 
