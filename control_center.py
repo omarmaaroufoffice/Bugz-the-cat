@@ -77,27 +77,75 @@ def load_and_display_media(file_path):
 def analyze_media(uploaded_files):
     """Analyze uploaded media files."""
     results = []
+    
+    # Connect to database
+    conn = sqlite3.connect('cat_content.db')
+    cursor = conn.cursor()
+    
     for file in uploaded_files:
         # Save the file temporarily
         temp_path = Path("temp") / f"temp_{file.name}"
-        temp_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure temp directory exists
+        temp_path.parent.mkdir(parents=True, exist_ok=True)
         
         try:
-            # Save the file
-            with open(temp_path, "wb") as f:
-                f.write(file.getbuffer())
+            # Check if file was already analyzed
+            cursor.execute("""
+                SELECT * FROM content_analysis 
+                WHERE original_filename = ?
+            """, (file.name,))
+            existing_analysis = cursor.fetchone()
             
-            # Analyze the file
-            analysis = st.session_state.analyzer.analyze_media(str(temp_path))
-            analysis['original_filename'] = file.name
-            analysis['file_path'] = str(temp_path)  # Store the full path
+            if existing_analysis:
+                # Get the full analysis from database
+                analysis_id = existing_analysis[0]
+                cursor.execute("""
+                    SELECT category, score 
+                    FROM category_scores 
+                    WHERE analysis_id = ?
+                """, (analysis_id,))
+                scores = {row[0]: row[1] for row in cursor.fetchall()}
+                
+                # Reconstruct analysis dictionary
+                analysis = {
+                    'id': analysis_id,
+                    'file_path': str(temp_path),
+                    'original_filename': existing_analysis[2],
+                    'media_type': existing_analysis[3],
+                    'total_score': existing_analysis[4],
+                    'caption': existing_analysis[5],
+                    'hashtags': existing_analysis[6],
+                    'engagement_tips': existing_analysis[7],
+                    'key_strengths': existing_analysis[8],
+                    'improvement_suggestions': existing_analysis[9],
+                    'timestamp': existing_analysis[10],
+                    'scores': scores
+                }
+                
+                # Save the file for display
+                with open(temp_path, "wb") as f:
+                    f.write(file.getbuffer())
+                
+                st.info(f"Found existing analysis for {file.name}")
+            else:
+                # Save the file for new analysis
+                with open(temp_path, "wb") as f:
+                    f.write(file.getbuffer())
+                
+                # Analyze the file
+                analysis = st.session_state.analyzer.analyze_media(str(temp_path))
+                analysis['original_filename'] = file.name
+                analysis['file_path'] = str(temp_path)
+                st.success(f"New analysis completed for {file.name}")
+            
             results.append(analysis)
             st.session_state.analyzed_content.append(analysis)
+            
         except Exception as e:
             st.error(f"Error analyzing {file.name}: {e}")
             if temp_path.exists():
-                temp_path.unlink()  # Clean up on error
+                temp_path.unlink()
     
+    conn.close()
     return results
 
 def display_analysis_results(analysis):
@@ -142,6 +190,28 @@ def display_analysis_results(analysis):
 
 def schedule_post(analysis):
     """Add post to pending schedule."""
+    # Connect to database to check posting history
+    conn = sqlite3.connect('cat_content.db')
+    cursor = conn.cursor()
+    
+    # Check if this content was already posted
+    if 'id' in analysis:
+        cursor.execute("""
+            SELECT platform, status, posted_at 
+            FROM posting_history 
+            WHERE analysis_id = ?
+            ORDER BY posted_at DESC
+        """, (analysis['id'],))
+        posting_history = cursor.fetchall()
+        
+        if posting_history:
+            st.info("Previous posting history:")
+            history_df = pd.DataFrame(
+                posting_history,
+                columns=['Platform', 'Status', 'Posted At']
+            )
+            st.dataframe(history_df)
+    
     platforms = st.multiselect(
         "Select platforms to post to:",
         ['instagram', 'twitter', 'facebook', 'tiktok'],
@@ -175,13 +245,30 @@ def schedule_post(analysis):
             'status': 'pending'
         }
         st.session_state.pending_posts.append(scheduled_post)
+        
+        # Record scheduling in database
+        if 'id' in analysis:
+            for platform in platforms:
+                cursor.execute("""
+                    INSERT INTO posting_history 
+                    (analysis_id, platform, status, posted_at) 
+                    VALUES (?, ?, ?, ?)
+                """, (analysis['id'], platform, 'scheduled', post_datetime))
+            conn.commit()
+        
         st.success("Post scheduled successfully!")
+    
+    conn.close()
 
 def manage_pending_posts():
     """Manage and approve pending posts."""
     if not st.session_state.pending_posts:
         st.info("No pending posts.")
         return
+    
+    # Connect to database
+    conn = sqlite3.connect('cat_content.db')
+    cursor = conn.cursor()
     
     st.subheader("Pending Posts")
     for i, post in enumerate(st.session_state.pending_posts):
@@ -198,6 +285,23 @@ def manage_pending_posts():
                 st.write("Caption:", post['analysis']['caption'])
                 st.write("Hashtags:", post['analysis']['hashtags'])
                 
+                # Show posting history if available
+                if 'id' in post['analysis']:
+                    cursor.execute("""
+                        SELECT platform, status, posted_at 
+                        FROM posting_history 
+                        WHERE analysis_id = ?
+                        ORDER BY posted_at DESC
+                    """, (post['analysis']['id'],))
+                    history = cursor.fetchall()
+                    if history:
+                        st.write("Posting History:")
+                        history_df = pd.DataFrame(
+                            history,
+                            columns=['Platform', 'Status', 'Posted At']
+                        )
+                        st.dataframe(history_df)
+                
                 if 'tiktok' in platforms:
                     st.markdown("### TikTok Posting Instructions")
                     st.markdown("""
@@ -210,9 +314,9 @@ def manage_pending_posts():
                         f"{post['analysis']['caption']}\n\n{post['analysis']['hashtags']}",
                         key=f"tiktok_text_{i}"
                     )
-                    platforms.remove('tiktok')  # Remove TikTok from automated posting
+                    platforms.remove('tiktok')
                 
-                if platforms:  # If there are other platforms to post to
+                if platforms:
                     if st.button("Post to Other Platforms", key=f"post_now_{i}"):
                         try:
                             results = st.session_state.analyzer.post_to_social_media(
@@ -225,18 +329,49 @@ def manage_pending_posts():
                                 st.success("Posted successfully to other platforms!")
                                 st.session_state.posted_content.append(post)
                                 st.session_state.pending_posts.pop(i)
+                                
+                                # Update database status
+                                if 'id' in post['analysis']:
+                                    for platform in platforms:
+                                        cursor.execute("""
+                                            UPDATE posting_history 
+                                            SET status = 'success', posted_at = ? 
+                                            WHERE analysis_id = ? AND platform = ?
+                                        """, (datetime.now(pytz.UTC), post['analysis']['id'], platform))
+                                    conn.commit()
                             else:
                                 failed_platforms = [p for p, r in results.items() if not r]
                                 st.error(f"Failed to post to: {', '.join(failed_platforms)}")
+                                
+                                # Record failures in database
+                                if 'id' in post['analysis']:
+                                    for platform in failed_platforms:
+                                        cursor.execute("""
+                                            UPDATE posting_history 
+                                            SET status = 'failed', posted_at = ? 
+                                            WHERE analysis_id = ? AND platform = ?
+                                        """, (datetime.now(pytz.UTC), post['analysis']['id'], platform))
+                                    conn.commit()
                         except Exception as e:
                             st.error(f"Error posting: {e}")
-                            
+                
                 if 'tiktok' in post['platforms']:
                     if st.button("Mark TikTok as Posted", key=f"tiktok_done_{i}"):
                         st.success("TikTok post marked as completed!")
-                        if not platforms:  # If no other platforms were pending
+                        if not platforms:
                             st.session_state.posted_content.append(post)
                             st.session_state.pending_posts.pop(i)
+                            
+                            # Update database for TikTok
+                            if 'id' in post['analysis']:
+                                cursor.execute("""
+                                    UPDATE posting_history 
+                                    SET status = 'success', posted_at = ? 
+                                    WHERE analysis_id = ? AND platform = 'tiktok'
+                                """, (datetime.now(pytz.UTC), post['analysis']['id']))
+                                conn.commit()
+    
+    conn.close()
 
 def view_analytics():
     """View analytics and posting history."""
