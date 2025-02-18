@@ -29,20 +29,257 @@ st.set_page_config(
     }
 )
 
-# Custom CSS
+# Custom CSS for modern design and better contrast
 st.markdown("""
     <style>
-    .stButton>button {
-        width: 100%;
+    /* Main theme colors */
+    :root {
+        --primary-color: #2E3192;
+        --secondary-color: #1E847F;
+        --background-color: #E8F5E9;
+        --text-color: #333333;
+        --accent-color: #4CAF50;
+        --success-color: #28A745;
+        --warning-color: #FFC107;
+        --error-color: #DC3545;
+        --card-bg-color: #C8E6C9;
+        --gradient-start: #2E7D32;
+        --gradient-end: #43A047;
     }
-    .stTextArea>div>div>textarea {
-        font-size: 14px;
+
+    /* Global styles */
+    .stApp {
+        background-color: var(--background-color);
+        color: var(--text-color);
     }
+
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 1rem;
+        background: linear-gradient(120deg, var(--gradient-start), var(--gradient-end));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: #E8F5E9;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .stButton > button:hover {
+        background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    /* Text inputs and text areas */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        background-color: var(--card-bg-color) !important;
+        border: 2px solid var(--gradient-start);
+        border-radius: 6px;
+        padding: 0.5rem;
+    }
+
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    /* DataFrames */
     .stDataFrame {
-        font-size: 14px;
+        background: linear-gradient(135deg, var(--card-bg-color), #A5D6A7);
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(46, 125, 50, 0.2);
     }
+
+    .dataframe {
+        background-color: var(--card-bg-color) !important;
+    }
+
+    /* Metrics */
+    .stMetric {
+        background: linear-gradient(135deg, var(--card-bg-color), #A5D6A7);
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(46, 125, 50, 0.2);
+    }
+
+    .stMetric label {
+        color: #1A1A1A !important;
+    }
+
+    .stMetric .metric-value {
+        color: var(--gradient-start) !important;
+        font-weight: 600;
+    }
+
+    /* Expanders */
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: #E8F5E9;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+    }
+
+    /* Sidebar */
     .css-1d391kg {
-        padding-top: 1rem;
+        background: linear-gradient(180deg, var(--card-bg-color), #A5D6A7);
+        padding: 2rem 1rem;
+        color: #1A1A1A;
+    }
+
+    /* Cards for content */
+    .stCard, div[data-testid="stExpander"] {
+        background: linear-gradient(135deg, var(--card-bg-color), #A5D6A7);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1rem;
+        border: 1px solid rgba(46, 125, 50, 0.2);
+    }
+
+    /* Success messages */
+    .element-container .stAlert {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: #E8F5E9;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .element-container .stSuccess {
+        background: linear-gradient(135deg, #28A745, #20C997);
+        color: #E8F5E9;
+    }
+
+    /* Warning messages */
+    .element-container .stWarning {
+        background: linear-gradient(135deg, #FFC107, #FF9800);
+        color: #1A1A1A;
+    }
+
+    /* Error messages */
+    .element-container .stError {
+        background: linear-gradient(135deg, #DC3545, #C82333);
+        color: #E8F5E9;
+    }
+
+    /* Info messages */
+    .element-container .stInfo {
+        background: linear-gradient(135deg, #17A2B8, #138496);
+        color: #E8F5E9;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: var(--card-bg-color);
+        gap: 2rem;
+        border-bottom: 2px solid var(--gradient-start);
+        padding: 0.5rem;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        background-color: var(--card-bg-color);
+        padding: 1rem 2rem;
+        color: var(--text-color);
+        font-weight: 500;
+        border-radius: 6px;
+    }
+
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: #E8F5E9 !important;
+        border-radius: 6px;
+    }
+
+    /* Select boxes */
+    .stSelectbox > div > div > select {
+        background-color: var(--card-bg-color) !important;
+        border: 2px solid var(--gradient-start);
+        border-radius: 6px;
+        padding: 0.5rem;
+    }
+
+    /* File uploader */
+    .stFileUploader {
+        background: linear-gradient(135deg, var(--card-bg-color), #A5D6A7);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 2px solid var(--gradient-start);
+    }
+
+    /* Progress bars */
+    .stProgress > div > div > div {
+        background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+        color: #E8F5E9;
+    }
+
+    /* Charts */
+    .stChart {
+        background: linear-gradient(135deg, var(--card-bg-color), #A5D6A7);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(46, 125, 50, 0.2);
+    }
+
+    /* Tables */
+    .dataframe {
+        background-color: var(--card-bg-color) !important;
+    }
+
+    /* Radio buttons and checkboxes */
+    .stRadio > div,
+    .stCheckbox > div {
+        background-color: var(--card-bg-color);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--gradient-start);
+    }
+
+    /* Links */
+    a {
+        color: var(--gradient-start);
+        font-weight: 500;
+    }
+    a:hover {
+        color: var(--gradient-end);
+    }
+
+    /* Text elements */
+    .stMarkdown {
+        color: #1A1A1A;
+    }
+    
+    /* Sidebar text */
+    .css-1d391kg {
+        color: #1A1A1A;
+    }
+
+    /* Input labels */
+    .stTextInput label, .stTextArea label, .stSelectbox label {
+        color: #1A1A1A !important;
+        font-weight: 500;
+    }
+
+    /* DataFrame text */
+    .dataframe {
+        color: #1A1A1A !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -242,7 +479,8 @@ def schedule_post(analysis):
             'analysis': analysis,
             'platforms': platforms,
             'scheduled_time': post_datetime,
-            'status': 'pending'
+            'status': 'pending',
+            'media_type': analysis['media_type']
         }
         st.session_state.pending_posts.append(scheduled_post)
         
@@ -572,8 +810,371 @@ def view_database():
     # Close connection
     conn.close()
 
+def create_post():
+    """Create and schedule posts for different platforms."""
+    st.header("Create Post")
+    
+    # Create temp directory if it doesn't exist
+    temp_dir = Path("temp")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Add tabs for new content vs existing content
+    tab1, tab2 = st.tabs(["Upload New Content", "Use Existing Content"])
+    
+    with tab1:
+        # Platform selection
+        platforms = st.multiselect(
+            "Select platforms to post to:",
+            ['Instagram', 'Twitter', 'Facebook', 'TikTok'],
+            default=['Instagram']
+        )
+        
+        if not platforms:
+            st.warning("Please select at least one platform.")
+            return
+        
+        # Media upload
+        uploaded_files = st.file_uploader(
+            "Upload media (images/videos)",
+            accept_multiple_files=True,
+            type=['png', 'jpg', 'jpeg', 'mp4', 'mov', 'avi']
+        )
+        
+        if uploaded_files:
+            for file in uploaded_files:
+                st.write(f"Processing: {file.name}")
+                
+                # Save file temporarily
+                temp_path = Path("temp") / f"temp_{file.name}"
+                temp_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                with open(temp_path, "wb") as f:
+                    f.write(file.getbuffer())
+                
+                # Display media preview
+                if file.type.startswith('video'):
+                    st.video(temp_path)
+                else:
+                    st.image(temp_path)
+                
+                # Post customization
+                with st.expander("Post Details", expanded=True):
+                    _handle_post_details(file.name, temp_path, platforms)
+    
+    with tab2:
+        # Connect to database
+        conn = sqlite3.connect('cat_content.db')
+        cursor = conn.cursor()
+        
+        try:
+            # Get all analyzed content
+            cursor.execute("""
+                SELECT ca.id, ca.original_filename, ca.media_type, ca.total_score, 
+                       ca.caption, ca.hashtags, ca.file_path, ca.created_at,
+                       GROUP_CONCAT(DISTINCT ph.platform) as posted_platforms
+                FROM content_analysis ca
+                LEFT JOIN posting_history ph ON ca.id = ph.analysis_id
+                GROUP BY ca.id
+                ORDER BY ca.created_at DESC
+            """)
+            content_list = cursor.fetchall()
+            
+            if not content_list:
+                st.info("No existing content found in the database.")
+                return
+            
+            # Create a DataFrame for better display
+            df = pd.DataFrame(content_list, columns=[
+                'id', 'filename', 'media_type', 'score', 'caption', 
+                'hashtags', 'file_path', 'created_at', 'posted_platforms'
+            ])
+            
+            # Add filters
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                media_type_filter = st.multiselect(
+                    "Filter by media type",
+                    df['media_type'].unique(),
+                    default=df['media_type'].unique()
+                )
+            with col2:
+                min_score = st.number_input("Minimum score", 0, 50, 0)
+            with col3:
+                search_term = st.text_input("Search in filename")
+            
+            # Apply filters
+            mask = (
+                df['media_type'].isin(media_type_filter) &
+                (df['score'] >= min_score)
+            )
+            if search_term:
+                mask &= df['filename'].str.contains(search_term, case=False)
+            
+            filtered_df = df[mask]
+            
+            # Display filtered content
+            for _, row in filtered_df.iterrows():
+                with st.expander(f"{row['filename']} (Score: {row['score']}/50)"):
+                    col1, col2 = st.columns([1, 2])
+                    
+                    with col1:
+                        try:
+                            # Load and display media
+                            original_path = Path(row['file_path'])
+                            temp_path = temp_dir / f"reuse_{row['id']}_{row['filename']}"
+                            
+                            # Check if the original file exists
+                            if original_path.exists():
+                                # Copy file to temp directory if it doesn't exist or is outdated
+                                if not temp_path.exists() or temp_path.stat().st_mtime < original_path.stat().st_mtime:
+                                    import shutil
+                                    shutil.copy2(original_path, temp_path)
+                                
+                                # Display media
+                                if row['media_type'] == 'video':
+                                    st.video(str(temp_path))
+                                else:
+                                    st.image(str(temp_path))
+                            else:
+                                st.error(f"Original file not found: {original_path}")
+                                continue
+                        except Exception as e:
+                            st.error(f"Error loading media: {e}")
+                            continue
+                    
+                    with col2:
+                        # Show posting history
+                        if row['posted_platforms']:
+                            st.write("Previously posted to:", row['posted_platforms'])
+                        
+                        # Platform selection for reposting
+                        platforms = st.multiselect(
+                            "Select platforms to post to:",
+                            ['Instagram', 'Twitter', 'Facebook', 'TikTok'],
+                            key=f"platforms_reuse_{row['id']}"
+                        )
+                        
+                        if platforms:
+                            # Get existing caption and hashtags
+                            caption = st.text_area(
+                                "Caption",
+                                value=row['caption'],
+                                key=f"caption_reuse_{row['id']}"
+                            )
+                            
+                            hashtags = st.text_area(
+                                "Hashtags",
+                                value=row['hashtags'],
+                                key=f"hashtags_reuse_{row['id']}"
+                            )
+                            
+                            # Platform-specific options
+                            if 'Instagram' in platforms:
+                                st.checkbox("Also share to Instagram Story", key=f"insta_story_reuse_{row['id']}")
+                            if 'Facebook' in platforms:
+                                st.checkbox("Share to Facebook Story", key=f"fb_story_reuse_{row['id']}")
+                            if 'TikTok' in platforms:
+                                st.slider("Video Duration (seconds)", 0, 60, 30, key=f"tiktok_duration_reuse_{row['id']}")
+                            
+                            # Scheduling options
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                post_date = st.date_input(
+                                    "Schedule date",
+                                    value=datetime.now(pytz.UTC).date(),
+                                    key=f"schedule_date_reuse_{row['id']}"
+                                )
+                            with col2:
+                                post_time = st.time_input(
+                                    "Schedule time",
+                                    value=datetime.now(pytz.UTC).time(),
+                                    key=f"schedule_time_reuse_{row['id']}"
+                                )
+                            
+                            schedule_datetime = datetime.combine(post_date, post_time)
+                            schedule_datetime = pytz.UTC.localize(schedule_datetime)
+                            
+                            # Best time suggestions
+                            st.info("""
+                            💡 Recommended posting times (ET):
+                            - Instagram: 11 AM - 2 PM, 7 PM - 9 PM
+                            - Twitter: 9 AM - 11 AM, 5 PM - 7 PM
+                            - Facebook: 1 PM - 4 PM
+                            - TikTok: 6 PM - 9 PM
+                            """)
+                            
+                            # Post now or schedule
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                if st.button("Post Now", key=f"post_now_reuse_{row['id']}"):
+                                    try:
+                                        post_data = {
+                                            'id': row['id'],
+                                            'file_path': str(temp_path),
+                                            'caption': caption,
+                                            'hashtags': hashtags,
+                                            'platforms': platforms,
+                                            'scheduled_time': datetime.now(pytz.UTC),
+                                            'media_type': row['media_type']
+                                        }
+                                        
+                                        results = st.session_state.analyzer.post_to_social_media(
+                                            post_data,
+                                            [p.lower() for p in platforms]
+                                        )
+                                        
+                                        for platform, success in results.items():
+                                            if success:
+                                                st.success(f"Posted to {platform}")
+                                            else:
+                                                st.error(f"Failed to post to {platform}")
+                                    except Exception as e:
+                                        st.error(f"Error posting: {e}")
+                            
+                            with col2:
+                                if st.button("Schedule Post", key=f"schedule_reuse_{row['id']}"):
+                                    try:
+                                        scheduled_post = {
+                                            'id': row['id'],
+                                            'file_path': str(temp_path),
+                                            'caption': caption,
+                                            'hashtags': hashtags,
+                                            'platforms': platforms,
+                                            'scheduled_time': schedule_datetime,
+                                            'status': 'pending',
+                                            'media_type': row['media_type']
+                                        }
+                                        
+                                        st.session_state.pending_posts.append(scheduled_post)
+                                        st.success(f"Post scheduled for {schedule_datetime.strftime('%Y-%m-%d %I:%M %p %Z')}")
+                                    except Exception as e:
+                                        st.error(f"Error scheduling post: {e}")
+        except Exception as e:
+            st.error(f"Error accessing database: {e}")
+        finally:
+            conn.close()
+
+def _handle_post_details(filename, temp_path, platforms):
+    """Helper function to handle post details form."""
+    # Caption with character count
+    caption = st.text_area(
+        "Caption",
+        help="Write your post caption here. Instagram captions work best under 125 characters.",
+        key=f"caption_{filename}"
+    )
+    st.write(f"Character count: {len(caption)}/2200")
+    
+    # Hashtag suggestions based on platforms
+    suggested_hashtags = []
+    if 'Instagram' in platforms:
+        suggested_hashtags.extend(['#catsofinstagram', '#catstagram', '#cats'])
+    if 'Twitter' in platforms:
+        suggested_hashtags.extend(['#CatsOfTwitter', '#cats'])
+    if 'TikTok' in platforms:
+        suggested_hashtags.extend(['#catsoftiktok', '#cattok'])
+    
+    hashtags = st.multiselect(
+        "Select hashtags",
+        suggested_hashtags,
+        default=suggested_hashtags[:5],
+        key=f"hashtags_{filename}"
+    )
+    custom_hashtags = st.text_input(
+        "Add custom hashtags (comma-separated)",
+        key=f"custom_hashtags_{filename}"
+    )
+    
+    if custom_hashtags:
+        hashtags.extend([tag.strip() for tag in custom_hashtags.split(',')])
+    
+    # Platform-specific options
+    if 'Instagram' in platforms:
+        st.checkbox("Also share to Instagram Story", key=f"insta_story_{filename}")
+    if 'Facebook' in platforms:
+        st.checkbox("Share to Facebook Story", key=f"fb_story_{filename}")
+    if 'TikTok' in platforms:
+        st.slider("Video Duration (seconds)", 0, 60, 30, key=f"tiktok_duration_{filename}")
+    
+    # Scheduling options
+    col1, col2 = st.columns(2)
+    with col1:
+        post_date = st.date_input(
+            "Schedule date",
+            value=datetime.now(pytz.UTC).date(),
+            key=f"schedule_date_{filename}"
+        )
+    with col2:
+        post_time = st.time_input(
+            "Schedule time",
+            value=datetime.now(pytz.UTC).time(),
+            key=f"schedule_time_{filename}"
+        )
+    
+    schedule_datetime = datetime.combine(post_date, post_time)
+    schedule_datetime = pytz.UTC.localize(schedule_datetime)
+    
+    # Best time suggestions
+    st.info("""
+    💡 Recommended posting times (ET):
+    - Instagram: 11 AM - 2 PM, 7 PM - 9 PM
+    - Twitter: 9 AM - 11 AM, 5 PM - 7 PM
+    - Facebook: 1 PM - 4 PM
+    - TikTok: 6 PM - 9 PM
+    """)
+    
+    # Schedule or post now
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Post Now", key=f"post_now_{filename}"):
+            try:
+                post_data = {
+                    'file_path': str(temp_path),
+                    'caption': caption,
+                    'hashtags': ' '.join(hashtags),
+                    'platforms': platforms,
+                    'scheduled_time': datetime.now(pytz.UTC),
+                    'media_type': row['media_type']
+                }
+                
+                results = st.session_state.analyzer.post_to_social_media(
+                    post_data,
+                    [p.lower() for p in platforms]
+                )
+                
+                for platform, success in results.items():
+                    if success:
+                        st.success(f"Posted to {platform}")
+                    else:
+                        st.error(f"Failed to post to {platform}")
+            except Exception as e:
+                st.error(f"Error posting: {e}")
+    
+    with col2:
+        if st.button("Schedule Post", key=f"schedule_{filename}"):
+            try:
+                scheduled_post = {
+                    'file_path': str(temp_path),
+                    'caption': caption,
+                    'hashtags': ' '.join(hashtags),
+                    'platforms': platforms,
+                    'scheduled_time': schedule_datetime,
+                    'status': 'pending',
+                    'media_type': row['media_type']
+                }
+                
+                st.session_state.pending_posts.append(scheduled_post)
+                st.success(f"Post scheduled for {schedule_datetime.strftime('%Y-%m-%d %I:%M %p %Z')}")
+            except Exception as e:
+                st.error(f"Error scheduling post: {e}")
+
 def main():
-    st.title("🐱 Cat Content Control Center")
+    # Add a decorative header
+    st.markdown("""
+        <div style='text-align: center; padding: 2rem 0;'>
+            <h1 style='color: #2E3192; font-size: 2.5rem; margin-bottom: 0.5rem;'>🐱 Cat Content Control Center</h1>
+            <p style='color: #666; font-size: 1.1rem;'>Analyze, Schedule, and Post Your Cat Content</p>
+        </div>
+    """, unsafe_allow_html=True)
     
     # Cleanup old temp files
     def cleanup_old_temp_files():
@@ -583,7 +1184,6 @@ def main():
             current_time = datetime.now()
             for temp_file in temp_dir.glob("temp_*"):
                 file_age = current_time - datetime.fromtimestamp(temp_file.stat().st_mtime)
-                # Only delete files older than 24 hours and not in current session
                 if file_age > timedelta(hours=24) and str(temp_file) not in [
                     analysis.get('file_path') for analysis in st.session_state.analyzed_content
                 ]:
@@ -595,26 +1195,78 @@ def main():
     # Run cleanup at startup
     cleanup_old_temp_files()
     
-    # Sidebar navigation
+    # Sidebar navigation with improved styling
     with st.sidebar:
+        st.markdown("""
+            <div style='text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2E7D32, #43A047); padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                <img src='https://placekitten.com/150/150' style='border-radius: 50%; margin-bottom: 1rem; border: 4px solid #E8F5E9; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                <h3 style='color: #E8F5E9; margin: 0; font-size: 1.5rem; font-weight: 600;'>Control Center</h3>
+            </div>
+        """, unsafe_allow_html=True)
+        
         selected = option_menu(
             "Navigation",
-            ["Content Analysis", "Post Management", "Analytics", "Database Management"],
-            icons=['camera-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
+            ["Content Analysis", "Create Post", "Post Management", "Analytics", "Database Management"],
+            icons=['camera-fill', 'plus-circle-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
             menu_icon="house-door-fill",
             default_index=0,
             styles={
-                "container": {"padding": "0!important", "background-color": "#fafafa"},
-                "icon": {"color": "black", "font-size": "20px"},
+                "container": {
+                    "padding": "1.5rem",
+                    "background-color": "#C8E6C9",
+                    "border-radius": "15px",
+                    "box-shadow": "0 4px 6px rgba(0, 0, 0, 0.05)",
+                    "border": "1px solid rgba(46, 125, 50, 0.2)"
+                },
+                "icon": {
+                    "color": "#2E7D32",
+                    "font-size": "22px",
+                    "margin-right": "10px"
+                },
                 "nav-link": {
                     "font-size": "16px",
                     "text-align": "left",
-                    "margin": "0px",
-                    "--hover-color": "#eee",
+                    "margin": "0.8rem 0",
+                    "padding": "0.8rem 1.2rem",
+                    "border-radius": "10px",
+                    "font-weight": "500",
+                    "color": "#1A1A1A",
+                    "background-color": "#E8F5E9",
+                    "border": "1px solid rgba(46, 125, 50, 0.1)",
+                    "transition": "all 0.3s ease",
                 },
-                "nav-link-selected": {"background-color": "#0083B8"},
+                "nav-link-selected": {
+                    "background": "linear-gradient(135deg, #2E7D32, #43A047)",
+                    "color": "#E8F5E9",
+                    "font-weight": "600",
+                    "box-shadow": "0 2px 4px rgba(0, 0, 0, 0.1)"
+                },
+                "nav-link:hover": {
+                    "background-color": "#A5D6A7",
+                    "color": "#1A1A1A",
+                    "transform": "translateX(5px)"
+                }
             }
         )
+        
+        # Add additional sidebar content
+        st.markdown("""
+            <div style='margin-top: 2rem; padding: 1.5rem; background: #E8F5E9; border-radius: 10px; border: 1px solid rgba(46, 125, 50, 0.2);'>
+                <h4 style='color: #2E7D32; margin-bottom: 0.5rem; font-size: 1rem;'>Quick Tips</h4>
+                <ul style='color: #1A1A1A; margin: 0; padding-left: 1.2rem; font-size: 0.9rem;'>
+                    <li>Analyze content before posting</li>
+                    <li>Schedule posts for optimal times</li>
+                    <li>Monitor analytics regularly</li>
+                    <li>Keep database organized</li>
+                </ul>
+            </div>
+            
+            <div style='margin-top: 1rem; text-align: center; padding: 1rem;'>
+                <p style='color: #1A1A1A; font-size: 0.8rem; opacity: 0.8;'>
+                    🐱 Cat Content Manager v1.0
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
     
     if selected == "Content Analysis":
         st.header("Content Analysis")
@@ -634,6 +1286,9 @@ def main():
                     st.divider()
                     display_analysis_results(analysis)
                     schedule_post(analysis)
+    
+    elif selected == "Create Post":
+        create_post()
     
     elif selected == "Post Management":
         st.header("Post Management")

@@ -13,4 +13,5 @@ python-magic>=0.4.27
 streamlit>=1.32.0
 streamlit-option-menu>=0.3.12
 watchdog>=3.0.0
-opencv-python>=4.9.0 
+opencv-python>=4.9.0
+moviepy==1.0.3 

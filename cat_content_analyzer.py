@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 import re
 import sqlite3
 from social_media_manager import SocialMediaManager
+import streamlit as st
+import threading
+from contextlib import contextmanager
 
 # Load environment variables
 load_dotenv()
@@ -22,6 +25,20 @@ genai.configure(api_key=GEMINI_API_KEY)
 # Initialize the Gemini model DO NOT CHANGE THIS
 #MODEL: gemini-2.0-flash
 model = genai.GenerativeModel('gemini-2.0-flash')
+
+# Thread-local storage for database connections
+thread_local = threading.local()
+
+@contextmanager
+def get_db_connection():
+    """Get a thread-safe database connection."""
+    if not hasattr(thread_local, "connection"):
+        thread_local.connection = sqlite3.connect('cat_content.db')
+    try:
+        yield thread_local.connection
+    except Exception as e:
+        thread_local.connection.rollback()
+        raise e
 
 class CatContentAnalyzer:
     def __init__(self):
@@ -43,152 +60,158 @@ class CatContentAnalyzer:
 
     def _init_database(self):
         """Initialize SQLite database and create necessary tables."""
-        self.conn = sqlite3.connect('cat_content.db')
-        self.cursor = self.conn.cursor()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            # Create tables if they don't exist
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS content_analysis (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_path TEXT,
+                original_filename TEXT,
+                media_type TEXT,
+                total_score INTEGER,
+                caption TEXT,
+                hashtags TEXT,
+                engagement_tips TEXT,
+                key_strengths TEXT,
+                improvement_suggestions TEXT,
+                timestamp DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            ''')
 
-        # Create tables if they don't exist
-        self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS content_analysis (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            file_path TEXT,
-            original_filename TEXT,
-            media_type TEXT,
-            total_score INTEGER,
-            caption TEXT,
-            hashtags TEXT,
-            engagement_tips TEXT,
-            key_strengths TEXT,
-            improvement_suggestions TEXT,
-            timestamp DATETIME,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS category_scores (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                analysis_id INTEGER,
+                category TEXT,
+                score INTEGER,
+                FOREIGN KEY (analysis_id) REFERENCES content_analysis (id)
+            )
+            ''')
 
-        self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS category_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            analysis_id INTEGER,
-            category TEXT,
-            score INTEGER,
-            FOREIGN KEY (analysis_id) REFERENCES content_analysis (id)
-        )
-        ''')
-
-        self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS posting_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            analysis_id INTEGER,
-            platform TEXT,
-            status TEXT,
-            posted_at DATETIME,
-            FOREIGN KEY (analysis_id) REFERENCES content_analysis (id)
-        )
-        ''')
-
-        self.conn.commit()
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS posting_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                analysis_id INTEGER,
+                platform TEXT,
+                status TEXT,
+                posted_at DATETIME,
+                FOREIGN KEY (analysis_id) REFERENCES content_analysis (id)
+            )
+            ''')
+            conn.commit()
 
     def _save_to_database(self, analysis):
         """Save analysis results to SQLite database."""
-        try:
-            # Insert main analysis data
-            self.cursor.execute('''
-            INSERT INTO content_analysis (
-                file_path, original_filename, media_type, total_score,
-                caption, hashtags, engagement_tips, key_strengths,
-                improvement_suggestions, timestamp
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                analysis['file_path'],
-                analysis.get('original_filename', os.path.basename(analysis['file_path'])),
-                analysis['media_type'],
-                analysis['total_score'],
-                analysis['caption'],
-                analysis['hashtags'],
-                analysis['engagement_tips'],
-                analysis['key_strengths'],
-                analysis['improvement_suggestions'],
-                analysis['timestamp']
-            ))
-            
-            analysis_id = self.cursor.lastrowid
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                # Insert main analysis data
+                cursor.execute('''
+                INSERT INTO content_analysis (
+                    file_path, original_filename, media_type, total_score,
+                    caption, hashtags, engagement_tips, key_strengths,
+                    improvement_suggestions, timestamp
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    analysis['file_path'],
+                    analysis.get('original_filename', os.path.basename(analysis['file_path'])),
+                    analysis['media_type'],
+                    analysis['total_score'],
+                    analysis['caption'],
+                    analysis['hashtags'],
+                    analysis['engagement_tips'],
+                    analysis['key_strengths'],
+                    analysis['improvement_suggestions'],
+                    analysis['timestamp']
+                ))
+                
+                analysis_id = cursor.lastrowid
 
-            # Insert category scores
-            for category, score in analysis['scores'].items():
-                self.cursor.execute('''
-                INSERT INTO category_scores (analysis_id, category, score)
-                VALUES (?, ?, ?)
-                ''', (analysis_id, category, score))
+                # Insert category scores
+                for category, score in analysis['scores'].items():
+                    cursor.execute('''
+                    INSERT INTO category_scores (analysis_id, category, score)
+                    VALUES (?, ?, ?)
+                    ''', (analysis_id, category, score))
 
-            self.conn.commit()
-            return analysis_id
-        except Exception as e:
-            self.conn.rollback()
-            print(f"Error saving to database: {e}")
-            raise
+                conn.commit()
+                return analysis_id
+            except Exception as e:
+                conn.rollback()
+                print(f"Error saving to database: {e}")
+                raise
 
     def _load_from_database(self, analysis_id):
         """Load analysis results from SQLite database."""
-        try:
-            # Get main analysis data
-            self.cursor.execute('''
-            SELECT * FROM content_analysis WHERE id = ?
-            ''', (analysis_id,))
-            analysis_data = self.cursor.fetchone()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                # Get main analysis data
+                cursor.execute('''
+                SELECT * FROM content_analysis WHERE id = ?
+                ''', (analysis_id,))
+                analysis_data = cursor.fetchone()
 
-            if not analysis_data:
+                if not analysis_data:
+                    return None
+
+                # Get category scores
+                cursor.execute('''
+                SELECT category, score FROM category_scores WHERE analysis_id = ?
+                ''', (analysis_id,))
+                scores = {row[0]: row[1] for row in cursor.fetchall()}
+
+                # Reconstruct analysis dictionary
+                analysis = {
+                    'file_path': analysis_data[1],
+                    'original_filename': analysis_data[2],
+                    'media_type': analysis_data[3],
+                    'total_score': analysis_data[4],
+                    'caption': analysis_data[5],
+                    'hashtags': analysis_data[6],
+                    'engagement_tips': analysis_data[7],
+                    'key_strengths': analysis_data[8],
+                    'improvement_suggestions': analysis_data[9],
+                    'timestamp': analysis_data[10],
+                    'scores': scores
+                }
+
+                return analysis
+            except Exception as e:
+                print(f"Error loading from database: {e}")
                 return None
-
-            # Get category scores
-            self.cursor.execute('''
-            SELECT category, score FROM category_scores WHERE analysis_id = ?
-            ''', (analysis_id,))
-            scores = {row[0]: row[1] for row in self.cursor.fetchall()}
-
-            # Reconstruct analysis dictionary
-            analysis = {
-                'file_path': analysis_data[1],
-                'original_filename': analysis_data[2],
-                'media_type': analysis_data[3],
-                'total_score': analysis_data[4],
-                'caption': analysis_data[5],
-                'hashtags': analysis_data[6],
-                'engagement_tips': analysis_data[7],
-                'key_strengths': analysis_data[8],
-                'improvement_suggestions': analysis_data[9],
-                'timestamp': analysis_data[10],
-                'scores': scores
-            }
-
-            return analysis
-        except Exception as e:
-            print(f"Error loading from database: {e}")
-            return None
 
     def record_post(self, analysis_id, platform, status):
         """Record posting history in the database."""
-        try:
-            self.cursor.execute('''
-            INSERT INTO posting_history (analysis_id, platform, status, posted_at)
-            VALUES (?, ?, ?, ?)
-            ''', (analysis_id, platform, status, datetime.now(pytz.UTC)))
-            self.conn.commit()
-        except Exception as e:
-            self.conn.rollback()
-            print(f"Error recording post history: {e}")
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute('''
+                INSERT INTO posting_history (analysis_id, platform, status, posted_at)
+                VALUES (?, ?, ?, ?)
+                ''', (analysis_id, platform, status, datetime.now(pytz.UTC)))
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                print(f"Error recording post history: {e}")
 
     def get_posting_history(self):
         """Get posting history from the database."""
-        try:
-            self.cursor.execute('''
-            SELECT ca.original_filename, ph.platform, ph.status, ph.posted_at
-            FROM posting_history ph
-            JOIN content_analysis ca ON ph.analysis_id = ca.id
-            ORDER BY ph.posted_at DESC
-            ''')
-            return self.cursor.fetchall()
-        except Exception as e:
-            print(f"Error getting posting history: {e}")
-            return []
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute('''
+                SELECT ca.original_filename, ph.platform, ph.status, ph.posted_at
+                FROM posting_history ph
+                JOIN content_analysis ca ON ph.analysis_id = ca.id
+                ORDER BY ph.posted_at DESC
+                ''')
+                return cursor.fetchall()
+            except Exception as e:
+                print(f"Error getting posting history: {e}")
+                return []
 
     def analyze_media(self, media_path):
         """Analyze a single media file (image or video)."""
@@ -293,29 +316,48 @@ class CatContentAnalyzer:
                 if category_index != -1:
                     score_text = response_text[category_index:category_index+100]
                     # Extract first number found (1-10)
-                    import re
                     score_match = re.search(r'(\d+)(?:/10)?', score_text)
                     if score_match:
                         scores[category] = int(score_match.group(1))
                     else:
                         scores[category] = 5  # Default score if not found
 
-            # Extract other components with Instagram-specific parsing
-            caption_start = response_text.lower().find("caption")
-            hashtags_start = response_text.find("#")
-            engagement_start = response_text.lower().find("engagement optimization")
-            strengths_start = response_text.lower().find("key strengths")
-            improvements_start = response_text.lower().find("improvements")
+            # Extract sections with cleaner text
+            sections = {
+                'caption': ('Caption:', ['Hashtag', 'Posting', 'Engagement']),
+                'hashtags': ('Hashtag', ['Posting', 'Engagement', 'Key']),
+                'engagement_tips': ('Engagement', ['Key', 'Improvement']),
+                'key_strengths': ('Key Strengths', ['Improvement']),
+                'improvement_suggestions': ('Improvement', ['END'])
+            }
             
-            # Enhanced analysis dictionary with Instagram-specific fields
+            extracted_content = {}
+            for section, (start_marker, end_markers) in sections.items():
+                start_idx = response_text.find(start_marker)
+                if start_idx != -1:
+                    # Find the earliest end marker after the start
+                    end_idx = len(response_text)
+                    for end_marker in end_markers:
+                        marker_idx = response_text.find(end_marker, start_idx + len(start_marker))
+                        if marker_idx != -1 and marker_idx < end_idx:
+                            end_idx = marker_idx
+                    
+                    content = response_text[start_idx:end_idx].strip()
+                    # Remove the section header
+                    content = re.sub(f'^{start_marker}[:\s]*', '', content, flags=re.IGNORECASE)
+                    # Clean up the content
+                    content = self._clean_text(content)
+                    extracted_content[section] = content
+
+            # Enhanced analysis dictionary
             analysis = {
                 'scores': scores,
                 'total_score': sum(scores.values()),
-                'caption': self._clean_text(response_text[caption_start:hashtags_start].strip() if caption_start != -1 else ""),
-                'hashtags': self._extract_hashtags(response_text[hashtags_start:] if hashtags_start != -1 else ""),
-                'engagement_tips': self._clean_text(response_text[engagement_start:strengths_start].strip() if engagement_start != -1 else ""),
-                'key_strengths': self._clean_text(response_text[strengths_start:improvements_start].strip() if strengths_start != -1 else ""),
-                'improvement_suggestions': self._clean_text(response_text[improvements_start:].strip() if improvements_start != -1 else ""),
+                'caption': extracted_content.get('caption', ''),
+                'hashtags': self._extract_hashtags(extracted_content.get('hashtags', '')),
+                'engagement_tips': extracted_content.get('engagement_tips', ''),
+                'key_strengths': extracted_content.get('key_strengths', ''),
+                'improvement_suggestions': extracted_content.get('improvement_suggestions', ''),
                 'timestamp': datetime.now(pytz.UTC),
             }
             
@@ -328,24 +370,68 @@ class CatContentAnalyzer:
         """Clean and format text for better readability."""
         if not text:
             return ""
+        
+        # Remove special characters and formatting
+        text = text.replace('*', '')  # Remove asterisks
+        text = text.replace('`', '')  # Remove backticks
+        text = text.replace('>', '')  # Remove quote markers
+        text = text.replace('#', ' #')  # Add space before hashtags
+        
         # Remove multiple spaces and newlines
-        cleaned = ' '.join(text.split())
+        text = ' '.join(text.split())
+        
+        # Remove common AI response patterns
+        patterns_to_remove = [
+            r'\[.*?\]',  # Remove square brackets and content
+            r'\(.*?\)',  # Remove parentheses and content
+            r'^\d+\.\s*',  # Remove numbered list markers
+            r'^\-\s*',  # Remove bullet points
+            r'Example:.*$',  # Remove examples
+            r'Note:.*$',  # Remove notes
+        ]
+        
+        for pattern in patterns_to_remove:
+            text = re.sub(pattern, '', text)
+        
         # Remove section headers
-        cleaned = re.sub(r'^(Caption:|Hashtags:|Engagement Optimization:|Key Strengths:|Improvements:)\s*', '', cleaned, flags=re.IGNORECASE)
-        return cleaned.strip()
+        headers_to_remove = [
+            'Caption:', 'Hashtags:', 'Engagement Optimization:',
+            'Key Strengths:', 'Improvements:', 'Recommendations:',
+            'Tips:', 'Suggestions:'
+        ]
+        
+        for header in headers_to_remove:
+            text = text.replace(header, '')
+        
+        return text.strip()
 
     def _extract_hashtags(self, text):
         """Extract and validate Instagram hashtags."""
         if not text:
             return []
+        
+        # Clean the text first
+        text = self._clean_text(text)
+        
         # Find all hashtags in the text
-        hashtags = re.findall(r'#\w+', text)
+        hashtags = []
+        for word in text.split():
+            if word.startswith('#'):
+                # Clean the hashtag
+                hashtag = word.strip('.,!?:;()[]{}')
+                if len(hashtag) > 1:  # Ensure it's not just #
+                    hashtags.append(hashtag)
+        
         # Ensure we don't exceed Instagram's limit
         hashtags = hashtags[:30]  # Instagram's maximum hashtag limit
+        
         # Add some popular cat hashtags if we have space
         if len(hashtags) < 30:
             remaining = 30 - len(hashtags)
-            hashtags.extend(self.instagram_hashtags[:remaining])
+            for tag in self.instagram_hashtags[:remaining]:
+                if tag not in hashtags:
+                    hashtags.append(tag)
+        
         return ' '.join(hashtags)
 
     def generate_posting_schedule(self):
@@ -409,36 +495,68 @@ class CatContentAnalyzer:
         results = {}
         for platform in platforms:
             success = False
-            if platform == 'instagram':
-                success = self.social_media.post_to_instagram(
-                    content['file_path'],
-                    content['caption'],
-                    content['hashtags']
-                )
-            elif platform == 'twitter':
-                success = self.social_media.post_to_twitter(
-                    content['file_path'],
-                    content['caption'],
-                    content['hashtags']
-                )
-            elif platform == 'facebook':
-                success = self.social_media.post_to_facebook(
-                    content['file_path'],
-                    content['caption'],
-                    content['hashtags']
-                )
-            elif platform == 'tiktok' and content['media_type'] == 'video':
-                success = self.social_media.post_to_tiktok(
-                    content['file_path'],
-                    content['caption'],
-                    content['hashtags']
-                )
+            try:
+                if platform == 'tiktok':
+                    # Handle TikTok first to validate video content
+                    if content.get('media_type') != 'video':
+                        st.error("Only video content can be posted to TikTok")
+                        results[platform] = False
+                        continue
+                    
+                    # Check video file format
+                    path = Path(content['file_path'])
+                    if path.suffix.lower() not in ['.mp4', '.mov', '.avi']:
+                        st.error("TikTok only accepts video files (.mp4, .mov, .avi)")
+                        results[platform] = False
+                        continue
+                    
+                    # Check video duration (TikTok limits)
+                    try:
+                        from moviepy.editor import VideoFileClip
+                        video = VideoFileClip(str(path))
+                        duration = video.duration
+                        video.close()
+                        
+                        if duration > 600:  # 10 minutes max
+                            st.error("TikTok videos must be 10 minutes or shorter")
+                            results[platform] = False
+                            continue
+                    except Exception as e:
+                        st.warning(f"Could not verify video duration: {e}")
+                    
+                    success = self.social_media.post_to_tiktok(
+                        content['file_path'],
+                        content['caption'],
+                        content['hashtags']
+                    )
+                
+                elif platform == 'instagram':
+                    success = self.social_media.post_to_instagram(
+                        content['file_path'],
+                        content['caption'],
+                        content['hashtags']
+                    )
+                elif platform == 'twitter':
+                    success = self.social_media.post_to_twitter(
+                        content['file_path'],
+                        content['caption'],
+                        content['hashtags']
+                    )
+                elif platform == 'facebook':
+                    success = self.social_media.post_to_facebook(
+                        content['file_path'],
+                        content['caption'],
+                        content['hashtags']
+                    )
+            except Exception as e:
+                st.error(f"Error posting to {platform}: {e}")
+                success = False
             
             results[platform] = success
             # Record posting attempt in database
             if 'id' in content:
                 self.record_post(content['id'], platform, 'success' if success else 'failed')
-
+        
         return results
 
     def export_analysis(self, output_path='content_analysis.json'):

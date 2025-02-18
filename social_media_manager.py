@@ -6,6 +6,7 @@ import mimetypes
 import magic
 import tweepy
 import streamlit as st
+import requests
 
 from instagrapi import Client as InstagramClient
 import facebook
@@ -176,25 +177,93 @@ class SocialMediaManager:
             return False
 
     def post_to_tiktok(self, media_path: str, caption: str, hashtags: str) -> bool:
-        """Guide user to post content on TikTok manually."""
+        """Post video content to TikTok using the TikTok API."""
         try:
-            st.info("""
-            For TikTok posting:
-            1. Open TikTok Studio: https://www.tiktok.com/upload
-            2. Upload your content there directly
-            3. Copy-paste the generated caption and hashtags
-            
-            TikTok's web API has strict limitations for third-party posting.
-            Using TikTok's official upload interface is more reliable.
-            """)
-            
-            # Format the caption and hashtags for easy copying
-            formatted_post = f"{caption}\n\n{hashtags}"
-            st.text_area("Copy this caption for TikTok:", formatted_post)
-            
+            # Check if the file is a video
+            path = Path(media_path)
+            if path.suffix.lower() not in ['.mp4', '.mov', '.avi']:
+                st.error("Only video content can be posted to TikTok. Please upload a video file.")
+                return False
+
+            # Check if we have TikTok credentials
+            access_token = os.getenv('TIKTOK_ACCESS_TOKEN')
+            if not access_token:
+                st.warning("""
+                TikTok access token not found. Please follow these steps:
+                1. Run the get_tiktok_token.py script
+                2. Follow the authorization process
+                3. Add the generated token to your .env file
+                """)
+                # Show manual posting instructions as fallback
+                st.info("""
+                For now, you can post manually:
+                1. Open TikTok Studio: https://www.tiktok.com/upload
+                2. Upload your video content there directly
+                3. Copy-paste the caption and hashtags below
+                """)
+                formatted_post = f"{caption}\n\n{hashtags}"
+                st.text_area("Copy this caption for TikTok:", formatted_post)
+                return False
+
+            # Initialize TikTok API client
+            headers = {
+                'Authorization': f'Bearer {access_token}',
+                'Content-Type': 'application/json'
+            }
+
+            # Step 1: Get video upload URL
+            upload_url = "https://open.tiktokapis.com/v2/post/publish/video/init/"
+            upload_response = requests.post(
+                upload_url,
+                headers=headers,
+                json={'source_info': {'source': 'FILE_UPLOAD'}}
+            )
+
+            if upload_response.status_code != 200:
+                st.error(f"Error getting upload URL: {upload_response.text}")
+                return False
+
+            upload_info = upload_response.json()
+            upload_url = upload_info['data']['upload_url']
+
+            # Step 2: Upload video file
+            with open(path, 'rb') as video_file:
+                files = {'video': ('video.mp4', video_file, 'video/mp4')}
+                upload_result = requests.post(upload_url, files=files)
+
+            if upload_result.status_code != 200:
+                st.error(f"Error uploading video: {upload_result.text}")
+                return False
+
+            # Step 3: Publish the video
+            publish_url = "https://open.tiktokapis.com/v2/post/publish/video/publish/"
+            publish_data = {
+                'video_id': upload_info['data']['video_id'],
+                'post_info': {
+                    'title': caption,
+                    'privacy_level': 'PUBLIC',
+                    'disable_comment': False,
+                    'disable_duet': False,
+                    'disable_stitch': False,
+                    'video_cover_timestamp_ms': 0
+                }
+            }
+
+            publish_response = requests.post(
+                publish_url,
+                headers=headers,
+                json=publish_data
+            )
+
+            if publish_response.status_code != 200:
+                st.error(f"Error publishing video: {publish_response.text}")
+                return False
+
+            st.success("Video successfully posted to TikTok!")
             return True
+
         except Exception as e:
-            print(f"Error preparing TikTok post: {e}")
+            st.error(f"Error posting to TikTok: {e}")
             return False
 
     def post_to_all_platforms(self, media_path: str, caption: str, hashtags: str) -> Dict[str, bool]:
