@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from pathlib import Path
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import pytz
 from streamlit_option_menu import option_menu
 import pandas as pd
@@ -474,7 +474,7 @@ def schedule_post(analysis):
     post_datetime = datetime.combine(post_date, post_time)
     post_datetime = pytz.UTC.localize(post_datetime)
     
-    if st.button("Schedule Post", key=f"schedule_{analysis['file_path']}"):
+    if st.button("Schedule", key=f"schedule_{analysis['file_path']}"):
         scheduled_post = {
             'analysis': analysis,
             'platforms': platforms,
@@ -494,7 +494,7 @@ def schedule_post(analysis):
                 """, (analysis['id'], platform, 'scheduled', post_datetime))
             conn.commit()
         
-        st.success("Post scheduled successfully!")
+        st.success("Content scheduled!")
     
     conn.close()
 
@@ -510,7 +510,7 @@ def manage_pending_posts():
     
     st.subheader("Pending Posts")
     for i, post in enumerate(st.session_state.pending_posts):
-        with st.expander(f"Post {i+1}: {post['analysis']['original_filename']}"):
+        with st.expander(f"Content {i+1}: {post['analysis']['original_filename']}"):
             col1, col2 = st.columns([2, 3])
             
             with col1:
@@ -555,7 +555,7 @@ def manage_pending_posts():
                     platforms.remove('tiktok')
                 
                 if platforms:
-                    if st.button("Post to Other Platforms", key=f"post_now_{i}"):
+                    if st.button("Share Now", key=f"share_now_{i}"):
                         try:
                             results = st.session_state.analyzer.post_to_social_media(
                                 post['analysis'],
@@ -564,34 +564,14 @@ def manage_pending_posts():
                             
                             success = all(results.values())
                             if success:
-                                st.success("Posted successfully to other platforms!")
+                                st.success("Content shared successfully!")
                                 st.session_state.posted_content.append(post)
                                 st.session_state.pending_posts.pop(i)
-                                
-                                # Update database status
-                                if 'id' in post['analysis']:
-                                    for platform in platforms:
-                                        cursor.execute("""
-                                            UPDATE posting_history 
-                                            SET status = 'success', posted_at = ? 
-                                            WHERE analysis_id = ? AND platform = ?
-                                        """, (datetime.now(pytz.UTC), post['analysis']['id'], platform))
-                                    conn.commit()
                             else:
                                 failed_platforms = [p for p, r in results.items() if not r]
-                                st.error(f"Failed to post to: {', '.join(failed_platforms)}")
-                                
-                                # Record failures in database
-                                if 'id' in post['analysis']:
-                                    for platform in failed_platforms:
-                                        cursor.execute("""
-                                            UPDATE posting_history 
-                                            SET status = 'failed', posted_at = ? 
-                                            WHERE analysis_id = ? AND platform = ?
-                                        """, (datetime.now(pytz.UTC), post['analysis']['id'], platform))
-                                    conn.commit()
+                                st.error(f"Share failed on: {', '.join(failed_platforms)}")
                         except Exception as e:
-                            st.error(f"Error posting: {e}")
+                            st.error(f"Error sharing: {e}")
                 
                 if 'tiktok' in post['platforms']:
                     if st.button("Mark TikTok as Posted", key=f"tiktok_done_{i}"):
@@ -1143,11 +1123,11 @@ def _handle_post_details(filename, temp_path, platforms):
                 
                 for platform, success in results.items():
                     if success:
-                        st.success(f"Posted to {platform}")
+                        st.success(f"Content shared to {platform}")
                     else:
-                        st.error(f"Failed to post to {platform}")
+                        st.error(f"Share failed on {platform}")
             except Exception as e:
-                st.error(f"Error posting: {e}")
+                st.error(f"Error sharing: {e}")
     
     with col2:
         if st.button("Schedule Post", key=f"schedule_{filename}"):
@@ -1167,14 +1147,195 @@ def _handle_post_details(filename, temp_path, platforms):
             except Exception as e:
                 st.error(f"Error scheduling post: {e}")
 
+def auto_schedule_posts():
+    """Automatically schedule posts with timeline view."""
+    st.header("Auto Post Scheduler")
+    
+    # Create two columns for the layout
+    col1, col2 = st.columns([2, 3])
+    
+    with col1:
+        st.subheader("Content Selection")
+        uploaded_files = st.file_uploader(
+            "Upload content for auto-scheduling",
+            accept_multiple_files=True,
+            type=['png', 'jpg', 'jpeg', 'mp4', 'mov', 'avi']
+        )
+        
+        # Platform selection (limited to Instagram and Twitter)
+        platforms = st.multiselect(
+            "Select platforms for auto-posting",
+            ['Instagram', 'Twitter'],
+            default=['Instagram', 'Twitter']
+        )
+        
+        # Time range selection
+        st.subheader("Posting Time Range")
+        col_start, col_end = st.columns(2)
+        with col_start:
+            start_time = st.time_input("Start posting from", value=datetime.strptime("09:00", "%H:%M").time())
+        with col_end:
+            end_time = st.time_input("End posting at", value=datetime.strptime("21:00", "%H:%M").time())
+        
+        # Days selection
+        days = st.multiselect(
+            "Select posting days",
+            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+            default=['Monday', 'Wednesday', 'Friday']
+        )
+        
+        # Posts per day
+        posts_per_day = st.slider("Posts per day", 1, 5, 2)
+        
+        # Minimum gap between posts
+        min_gap_hours = st.slider("Minimum hours between posts", 2, 8, 4)
+    
+    with col2:
+        if uploaded_files:
+            st.subheader("Generated Timeline")
+            
+            # Analyze content and create schedule
+            analyzed_content = []
+            for file in uploaded_files:
+                # Save file temporarily
+                temp_path = Path("temp") / f"auto_schedule_{file.name}"
+                with open(temp_path, "wb") as f:
+                    f.write(file.getbuffer())
+                
+                try:
+                    # Analyze content
+                    analysis = st.session_state.analyzer.analyze_media(str(temp_path))
+                    analysis['original_filename'] = file.name
+                    analyzed_content.append(analysis)
+                except Exception as e:
+                    st.error(f"Error analyzing {file.name}: {e}")
+            
+            if analyzed_content:
+                # Sort content by total score
+                analyzed_content.sort(key=lambda x: x['total_score'], reverse=True)
+                
+                # Generate posting schedule
+                schedule = []
+                current_date = datetime.now(pytz.UTC).date()
+                
+                # Create schedule for next 7 days
+                for _ in range(7):
+                    if current_date.strftime('%A') in days:
+                        # Calculate posting times for the day
+                        day_start = datetime.combine(current_date, start_time)
+                        day_end = datetime.combine(current_date, end_time)
+                        
+                        # Divide time range into equal intervals
+                        time_range = (day_end - day_start).seconds / 3600
+                        interval = max(time_range / posts_per_day, min_gap_hours)
+                        
+                        for i in range(posts_per_day):
+                            post_time = day_start + timedelta(hours=i * interval)
+                            if analyzed_content:
+                                content = analyzed_content.pop(0)
+                                schedule.append({
+                                    'datetime': post_time,
+                                    'content': content,
+                                    'platforms': platforms
+                                })
+                                
+                                # Rotate content back to the end if we need more posts
+                                analyzed_content.append(content)
+                    
+                    current_date += timedelta(days=1)
+                
+                # Display timeline
+                for post in schedule:
+                    with st.expander(
+                        f"📅 {post['datetime'].strftime('%A, %B %d, %I:%M %p')} - {post['content']['original_filename']}", 
+                        expanded=True
+                    ):
+                        col1, col2 = st.columns([1, 2])
+                        
+                        with col1:
+                            # Display media preview
+                            if post['content']['media_type'] == 'video':
+                                st.video(post['content']['file_path'])
+                            else:
+                                st.image(post['content']['file_path'])
+                        
+                        with col2:
+                            # Display and allow editing of post details
+                            platforms_str = " & ".join(post['platforms'])
+                            st.write(f"🎯 Posting to: {platforms_str}")
+                            st.write(f"📊 Content Score: {post['content']['total_score']}/50")
+                            
+                            # Editable caption and hashtags
+                            edited_caption = st.text_area(
+                                "Edit Caption",
+                                post['content']['caption'],
+                                key=f"caption_{post['datetime']}_{post['content']['file_path']}"
+                            )
+                            edited_hashtags = st.text_area(
+                                "Edit Hashtags",
+                                post['content']['hashtags'],
+                                key=f"hashtags_{post['datetime']}_{post['content']['file_path']}"
+                            )
+                            
+                            # Update post data with edits
+                            post['content']['caption'] = edited_caption
+                            post['content']['hashtags'] = edited_hashtags
+                            
+                            # Approval button
+                            if st.button("✅ Approve Post", key=f"approve_{post['datetime']}_{post['content']['file_path']}"):
+                                try:
+                                    # Add to pending posts
+                                    scheduled_post = {
+                                        'analysis': post['content'],
+                                        'platforms': [p.lower() for p in post['platforms']],
+                                        'scheduled_time': post['datetime'].replace(tzinfo=pytz.UTC),
+                                        'status': 'pending'
+                                    }
+                                    st.session_state.pending_posts.append(scheduled_post)
+                                    st.success("Post approved and scheduled!")
+                                except Exception as e:
+                                    st.error(f"Error scheduling post: {e}")
+                
+                # Add download schedule button
+                schedule_df = pd.DataFrame([
+                    {
+                        'Date': post['datetime'].strftime('%Y-%m-%d'),
+                        'Time': post['datetime'].strftime('%I:%M %p'),
+                        'File': post['content']['original_filename'],
+                        'Platforms': ' & '.join(post['platforms']),
+                        'Caption': post['content']['caption'],
+                        'Hashtags': post['content']['hashtags']
+                    }
+                    for post in schedule
+                ])
+                
+                csv = schedule_df.to_csv(index=False)
+                st.download_button(
+                    "📥 Download Schedule as CSV",
+                    csv,
+                    "posting_schedule.csv",
+                    "text/csv",
+                    key='download_schedule'
+                )
+
 def main():
-    # Add a decorative header
+    # Update main header
     st.markdown("""
         <div style='text-align: center; padding: 2rem 0;'>
-            <h1 style='color: #2E3192; font-size: 2.5rem; margin-bottom: 0.5rem;'>🐱 Cat Content Control Center</h1>
-            <p style='color: #666; font-size: 1.1rem;'>Analyze, Schedule, and Post Your Cat Content</p>
+            <h1 style='color: #2E3192; font-size: 2.5rem; margin-bottom: 0.5rem;'>🐱 Cat Content Manager</h1>
+            <p style='color: #666; font-size: 1.1rem;'>Analyze, Schedule, and Share Your Cat Content</p>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Update section headers
+    st.header("Content Analysis")
+    st.header("Content Manager")
+    st.header("Analytics Dashboard")
+    
+    # Update subheaders
+    st.subheader("Content History")
+    st.subheader("Recent Activity")
+    st.subheader("Platform Distribution")
     
     # Cleanup old temp files
     def cleanup_old_temp_files():
@@ -1206,8 +1367,8 @@ def main():
         
         selected = option_menu(
             "Navigation",
-            ["Content Analysis", "Create Post", "Post Management", "Analytics", "Database Management"],
-            icons=['camera-fill', 'plus-circle-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
+            ["Content Analysis", "Create Posts", "Auto Schedule", "Post Manager", "Analytics", "Database Manager"],
+            icons=['camera-fill', 'plus-circle-fill', 'calendar-plus-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
             menu_icon="house-door-fill",
             default_index=0,
             styles={
@@ -1287,18 +1448,21 @@ def main():
                     display_analysis_results(analysis)
                     schedule_post(analysis)
     
-    elif selected == "Create Post":
+    elif selected == "Create Posts":
         create_post()
     
-    elif selected == "Post Management":
-        st.header("Post Management")
+    elif selected == "Auto Schedule":
+        auto_schedule_posts()
+    
+    elif selected == "Post Manager":
+        st.header("Content Manager")
         manage_pending_posts()
     
     elif selected == "Analytics":
         st.header("Analytics")
         view_analytics()
     
-    elif selected == "Database Management":
+    elif selected == "Database Manager":
         view_database()
 
 if __name__ == "__main__":
