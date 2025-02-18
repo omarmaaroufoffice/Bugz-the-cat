@@ -1,0 +1,16 @@
+google-generativeai>=0.3.0
+Pillow>=10.0.0
+python-dotenv>=1.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+datetime>=5.0
+pytz>=2024.1
+tweepy>=4.14.0
+facebook-sdk>=3.1.0
+instagrapi>=2.0.0
+requests>=2.31.0
+python-magic>=0.4.27
+streamlit>=1.32.0
+streamlit-option-menu>=0.3.12
+watchdog>=3.0.0
+opencv-python>=4.9.0 
