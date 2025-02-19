@@ -1,0 +1,2719 @@
+{
+  "testEngine": {
+    "name": "axe-core",
+    "version": "4.7.0"
+  },
+  "testRunner": {
+    "name": "axe"
+  },
+  "testEnvironment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/133.0.6943.16 Safari/537.36",
+    "windowWidth": 1280,
+    "windowHeight": 720,
+    "orientationAngle": 0,
+    "orientationType": "landscape-primary"
+  },
+  "timestamp": "2025-02-19T14:55:51.875Z",
+  "url": "http://localhost:8501/",
+  "toolOptions": {
+    "reporter": "v1"
+  },
+  "inapplicable": [
+    {
+      "id": "accesskeys",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "best-practice"
+      ],
+      "description": "Ensures every accesskey attribute value is unique",
+      "help": "accesskey attribute value should be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/accesskeys?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "area-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag244",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT6.a"
+      ],
+      "description": "Ensures <area> elements of image maps have alternate text",
+      "help": "Active <area> elements must have alternate text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/area-alt?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-allowed-role",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "best-practice"
+      ],
+      "description": "Ensures role attribute has an appropriate value for the element",
+      "help": "ARIA role should be appropriate for the element",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-allowed-role?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-command-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "ACT",
+        "TTv5",
+        "TT6.a"
+      ],
+      "description": "Ensures every ARIA button, link and menuitem has an accessible name",
+      "help": "ARIA commands must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-command-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-dialog-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "best-practice"
+      ],
+      "description": "Ensures every ARIA dialog and alertdialog node has an accessible name",
+      "help": "ARIA dialog and alertdialog nodes should have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-dialog-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-input-field-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "ACT",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures every ARIA input field has an accessible name",
+      "help": "ARIA input fields must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-input-field-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-meter-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag111"
+      ],
+      "description": "Ensures every ARIA meter node has an accessible name",
+      "help": "ARIA meter nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-meter-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-progressbar-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag111"
+      ],
+      "description": "Ensures every ARIA progressbar node has an accessible name",
+      "help": "ARIA progressbar nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-progressbar-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures elements with ARIA roles have all required ARIA attributes",
+      "help": "Required ARIA attributes must be provided",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-required-attr?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-children",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures elements with an ARIA role that require child roles contain them",
+      "help": "Certain ARIA roles must contain particular children",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-required-children?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-required-parent",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures elements with an ARIA role that require parent roles are contained by them",
+      "help": "Certain ARIA roles must be contained by particular parents",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-required-parent?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-roles",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures all elements with a role attribute use a valid value",
+      "help": "ARIA roles used must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-roles?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-text",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "best-practice"
+      ],
+      "description": "Ensures \"role=text\" is used on elements with no focusable descendants",
+      "help": "\"role=text\" should have no focusable descendants",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-text?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-toggle-field-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412",
+        "ACT",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures every ARIA toggle field has an accessible name",
+      "help": "ARIA toggle fields must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-toggle-field-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-tooltip-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures every ARIA tooltip node has an accessible name",
+      "help": "ARIA tooltip nodes must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-tooltip-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "aria-treeitem-name",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "best-practice"
+      ],
+      "description": "Ensures every ARIA treeitem node has an accessible name",
+      "help": "ARIA treeitem nodes should have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-treeitem-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "autocomplete-valid",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag21aa",
+        "wcag135",
+        "ACT"
+      ],
+      "description": "Ensure the autocomplete attribute is correct and suitable for the form field",
+      "help": "autocomplete attribute must be used correctly",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/autocomplete-valid?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "blink",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag222",
+        "section508",
+        "section508.22.j",
+        "TTv5",
+        "TT2.b"
+      ],
+      "description": "Ensures <blink> elements are not used",
+      "help": "<blink> elements are deprecated and must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/blink?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "bypass",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag241",
+        "section508",
+        "section508.22.o",
+        "TTv5",
+        "TT9.a"
+      ],
+      "description": "Ensures each page has at least one mechanism for a user to bypass navigation and jump straight to the content",
+      "help": "Page must have means to bypass repeated blocks",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/bypass?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "definition-list",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures <dl> elements are structured correctly",
+      "help": "<dl> elements must only directly contain properly-ordered <dt> and <dd> groups, <script>, <template> or <div> elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/definition-list?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "dlitem",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures <dt> and <dd> elements are contained by a <dl>",
+      "help": "<dt> and <dd> elements must be contained by a <dl>",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/dlitem?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "duplicate-id-active",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag411"
+      ],
+      "description": "Ensures every id attribute value of active elements is unique",
+      "help": "IDs of active elements must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id-active?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "duplicate-id-aria",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag411"
+      ],
+      "description": "Ensures every id attribute value used in ARIA and in labels is unique",
+      "help": "IDs used in ARIA and labels must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id-aria?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "empty-heading",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "best-practice"
+      ],
+      "description": "Ensures headings have discernible text",
+      "help": "Headings should not be empty",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/empty-heading?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "empty-table-header",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "best-practice"
+      ],
+      "description": "Ensures table headers have discernible text",
+      "help": "Table header text should not be empty",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/empty-table-header?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "form-field-multiple-labels",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag332",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures form field does not have multiple label elements",
+      "help": "Form field must not have multiple label elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/form-field-multiple-labels?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "frame-focusable-content",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag211",
+        "TTv5",
+        "TT4.a"
+      ],
+      "description": "Ensures <frame> and <iframe> elements with focusable content do not have tabindex=-1",
+      "help": "Frames with focusable content must not have tabindex=-1",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/frame-focusable-content?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "frame-tested",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "review-item",
+        "best-practice"
+      ],
+      "description": "Ensures <iframe> and <frame> elements contain the axe-core script",
+      "help": "Frames should be tested with axe-core",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/frame-tested?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "frame-title-unique",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag412",
+        "wcag2a",
+        "TTv5",
+        "TT12.c"
+      ],
+      "description": "Ensures <iframe> and <frame> elements contain a unique title attribute",
+      "help": "Frames must have a unique title attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/frame-title-unique?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "frame-title",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.i",
+        "TTv5",
+        "TT12.c"
+      ],
+      "description": "Ensures <iframe> and <frame> elements have an accessible name",
+      "help": "Frames must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/frame-title?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "heading-order",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the order of headings is semantically correct",
+      "help": "Heading levels should only increase by one",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/heading-order?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "html-xml-lang-mismatch",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "ACT"
+      ],
+      "description": "Ensure that HTML elements with both valid lang and xml:lang attributes agree on the base language of the page",
+      "help": "HTML elements with lang and xml:lang must have the same base language",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/html-xml-lang-mismatch?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "input-button-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures input buttons have discernible text",
+      "help": "Input buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/input-button-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "input-image-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT7.a"
+      ],
+      "description": "Ensures <input type=\"image\"> elements have alternate text",
+      "help": "Image buttons must have alternate text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/input-image-alt?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "label-title-only",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "best-practice"
+      ],
+      "description": "Ensures that every form element has a visible label and is not solely labeled using hidden labels, or the title or aria-describedby attributes",
+      "help": "Form elements should have a visible label",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/label-title-only?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "label",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.n",
+        "ACT",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures every form element has a label",
+      "help": "Form elements must have labels",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/label?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "landmark-complementary-is-top-level",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the complementary landmark or aside is at top level",
+      "help": "Aside should not be contained in another landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-complementary-is-top-level?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "landmark-contentinfo-is-top-level",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the contentinfo landmark is at top level",
+      "help": "Contentinfo landmark should not be contained in another landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-contentinfo-is-top-level?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "landmark-main-is-top-level",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the main landmark is at top level",
+      "help": "Main landmark should not be contained in another landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-main-is-top-level?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "landmark-no-duplicate-contentinfo",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the document has at most one contentinfo landmark",
+      "help": "Document should not have more than one contentinfo landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-contentinfo?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "landmark-no-duplicate-main",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the document has at most one main landmark",
+      "help": "Document should not have more than one main landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-main?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "link-in-text-block",
+      "impact": null,
+      "tags": [
+        "cat.color",
+        "wcag2a",
+        "wcag141",
+        "TTv5",
+        "TT13.a"
+      ],
+      "description": "Ensure links are distinguished from surrounding text in a way that does not rely on color",
+      "help": "Links must be distinguishable without relying on color",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/link-in-text-block?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "link-name",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "wcag244",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT6.a"
+      ],
+      "description": "Ensures links have discernible text",
+      "help": "Links must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/link-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "list",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures that lists are structured correctly",
+      "help": "<ul> and <ol> must only directly contain <li>, <script> or <template> elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/list?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "listitem",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag2a",
+        "wcag131"
+      ],
+      "description": "Ensures <li> elements are used semantically",
+      "help": "<li> elements must be contained in a <ul> or <ol>",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/listitem?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "marquee",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag222",
+        "TTv5",
+        "TT2.b"
+      ],
+      "description": "Ensures <marquee> elements are not used",
+      "help": "<marquee> elements are deprecated and must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/marquee?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "meta-refresh",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag221",
+        "TTv5",
+        "TT2.c"
+      ],
+      "description": "Ensures <meta http-equiv=\"refresh\"> is not used for delayed refresh",
+      "help": "Delayed refresh under 20 hours must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/meta-refresh?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "object-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a"
+      ],
+      "description": "Ensures <object> elements have alternate text",
+      "help": "<object> elements must have alternate text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/object-alt?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "presentation-role-conflict",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "best-practice",
+        "ACT"
+      ],
+      "description": "Elements marked as presentational should not have global ARIA or tabindex to ensure all screen readers ignore them",
+      "help": "Ensure elements marked as presentational are consistently ignored",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/presentation-role-conflict?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "role-img-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT7.a"
+      ],
+      "description": "Ensures [role='img'] elements have alternate text",
+      "help": "[role='img'] elements must have an alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/role-img-alt?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "scope-attr-valid",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "best-practice"
+      ],
+      "description": "Ensures the scope attribute is used correctly on tables",
+      "help": "scope attribute should be used correctly",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/scope-attr-valid?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "scrollable-region-focusable",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag211"
+      ],
+      "description": "Ensure elements that have scrollable content are accessible by keyboard",
+      "help": "Scrollable region must have keyboard access",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/scrollable-region-focusable?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "select-name",
+      "impact": null,
+      "tags": [
+        "cat.forms",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.n",
+        "ACT",
+        "TTv5",
+        "TT5.c"
+      ],
+      "description": "Ensures select element has an accessible name",
+      "help": "Select element must have an accessible name",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/select-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "server-side-image-map",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag211",
+        "section508",
+        "section508.22.f"
+      ],
+      "description": "Ensures that server-side image maps are not used",
+      "help": "Server-side image maps must not be used",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/server-side-image-map?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "skip-link",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "best-practice"
+      ],
+      "description": "Ensure all skip links have a focusable target",
+      "help": "The skip-link target should exist and be focusable",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/skip-link?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "svg-img-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT7.a"
+      ],
+      "description": "Ensures <svg> elements with an img, graphics-document or graphics-symbol role have an accessible text",
+      "help": "<svg> elements with an img role must have an alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/svg-img-alt?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "table-duplicate-name",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "best-practice"
+      ],
+      "description": "Ensure the <caption> element does not contain the same text as the summary attribute",
+      "help": "tables should not have the same summary and caption",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/table-duplicate-name?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "td-headers-attr",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "wcag2a",
+        "wcag131",
+        "section508",
+        "section508.22.g"
+      ],
+      "description": "Ensure that each cell in a table that uses the headers attribute refers only to other cells in that table",
+      "help": "Table cells that use the headers attribute must only refer to cells in the same table",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/td-headers-attr?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "th-has-data-cells",
+      "impact": null,
+      "tags": [
+        "cat.tables",
+        "wcag2a",
+        "wcag131",
+        "section508",
+        "section508.22.g",
+        "TTv5",
+        "14.b"
+      ],
+      "description": "Ensure that <th> elements and elements with role=columnheader/rowheader have data cells they describe",
+      "help": "Table headers in a data table must refer to data cells",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/th-has-data-cells?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "valid-lang",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2aa",
+        "wcag312",
+        "ACT",
+        "TTv5",
+        "TT11.b"
+      ],
+      "description": "Ensures lang attributes have valid values",
+      "help": "lang attribute must have a valid value",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/valid-lang?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "video-caption",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag122",
+        "section508",
+        "section508.22.a",
+        "TTv5",
+        "TT17.a"
+      ],
+      "description": "Ensures <video> elements have captions",
+      "help": "<video> elements must have captions",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/video-caption?application=axeAPI",
+      "nodes": []
+    },
+    {
+      "id": "no-autoplay-audio",
+      "impact": null,
+      "tags": [
+        "cat.time-and-media",
+        "wcag2a",
+        "wcag142",
+        "ACT",
+        "TTv5",
+        "TT2.a"
+      ],
+      "description": "Ensures <video> or <audio> elements do not autoplay audio for more than 3 seconds without a control mechanism to stop or mute the audio",
+      "help": "<video> or <audio> elements must not play automatically",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/no-autoplay-audio?application=axeAPI",
+      "nodes": []
+    }
+  ],
+  "passes": [
+    {
+      "id": "aria-hidden-body",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures aria-hidden='true' is not present on the document body.",
+      "help": "aria-hidden='true' must not be present on the document body",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-hidden-body?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-hidden-body",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "No aria-hidden attribute is present on document body"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<body>",
+          "target": [
+            "body"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-hidden-focus",
+      "impact": null,
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures aria-hidden elements are not focusable nor contain focusable elements",
+      "help": "ARIA hidden element must not be focusable or contain focusable elements",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-hidden-focus?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "focusable-modal-open",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "No focusable elements while a modal is open"
+            },
+            {
+              "id": "focusable-disabled",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "No focusable elements contained within element"
+            },
+            {
+              "id": "focusable-not-tabbable",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "No focusable elements contained within element"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\" color=\"inherit\" class=\"eyeqlp51 st-emotion-cache-1pbsqtx ex0cdmw0\">",
+          "target": [
+            "svg"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures all ARIA attributes have valid values",
+      "help": "ARIA attributes must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-valid-attr-value?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "aria-valid-attr-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute values are valid"
+            },
+            {
+              "id": "aria-errormessage",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "aria-errormessage exists and references elements visible to screen readers that use a supported aria-errormessage technique"
+            },
+            {
+              "id": "aria-level",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "aria-level values are valid"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<span id=\"MainMenu\" data-testid=\"stMainMenu\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"st-emotion-cache-czk5ss e16jpq800\">",
+          "target": [
+            "#MainMenu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "aria-valid-attr",
+      "impact": null,
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures attributes that begin with aria- are valid ARIA attributes",
+      "help": "ARIA attributes must conform to valid names",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-valid-attr?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-valid-attr",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute name is valid"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span id=\"MainMenu\" data-testid=\"stMainMenu\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"st-emotion-cache-czk5ss e16jpq800\">",
+          "target": [
+            "#MainMenu"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "avoid-inline-spacing",
+      "impact": null,
+      "tags": [
+        "cat.structure",
+        "wcag21aa",
+        "wcag1412",
+        "ACT"
+      ],
+      "description": "Ensure that text spacing set through style attributes can be adjusted with custom stylesheets",
+      "help": "Inline text spacing must be adjustable with custom stylesheets",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/avoid-inline-spacing?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "important-letter-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Letter-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-word-spacing",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "word-spacing in the style attribute is not set to !important, or meets the minimum"
+            },
+            {
+              "id": "important-line-height",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "line-height in the style attribute is not set to !important, or meets the minimum"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"stMarkdown\" data-testid=\"stMarkdown\" style=\"width: 1120px;\">",
+          "target": [
+            ".stMarkdown"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "button-name",
+      "impact": "critical",
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT6.a"
+      ],
+      "description": "Ensures buttons have discernible text",
+      "help": "Buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/button-name?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "button-has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has inner text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-sa9oi8 ef3psqc5\">Stop</button>",
+          "target": [
+            ".st-emotion-cache-sa9oi8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "button-has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has inner text that is visible to screen readers"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-ztfqz8 ef3psqc5\"><div class=\"st-emotion-cache-1wbqy5l e17vllj40\"><span>Deploy</span></div></button>",
+          "target": [
+            ".st-emotion-cache-ztfqz8"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "ACT",
+        "TTv5",
+        "TT13.c"
+      ],
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#333333",
+                "bgColor": "#ffffff",
+                "contrastRatio": 12.63,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1",
+                "shadowColor": null
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 12.63"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-sa9oi8 ef3psqc5\">Stop</button>",
+          "target": [
+            ".st-emotion-cache-sa9oi8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#333333",
+                "bgColor": "#ffffff",
+                "contrastRatio": 12.63,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1",
+                "shadowColor": null
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has sufficient color contrast of 12.63"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span>Deploy</span>",
+          "target": [
+            ".st-emotion-cache-1wbqy5l > span"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "document-title",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag242",
+        "ACT",
+        "TTv5",
+        "TT12.a"
+      ],
+      "description": "Ensures each HTML document contains a non-empty <title> element",
+      "help": "Documents must have <title> element to aid in navigation",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/document-title?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "doc-has-title",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Document has a non-empty <title> element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"en\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duplicate-id",
+      "impact": null,
+      "tags": [
+        "cat.parsing",
+        "wcag2a",
+        "wcag411"
+      ],
+      "description": "Ensures every id attribute value is unique",
+      "help": "id attribute value must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/duplicate-id?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "duplicate-id",
+              "data": "root",
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Document has no static elements that share the same id attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div id=\"root\">",
+          "target": [
+            "#root"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "duplicate-id",
+              "data": "stDecoration",
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Document has no static elements that share the same id attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stDecoration\" id=\"stDecoration\" class=\"st-emotion-cache-1dp5vir ezrtsby1\"></div>",
+          "target": [
+            "#stDecoration"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "duplicate-id",
+              "data": "MainMenu",
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Document has no static elements that share the same id attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span id=\"MainMenu\" data-testid=\"stMainMenu\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"st-emotion-cache-czk5ss e16jpq800\">",
+          "target": [
+            "#MainMenu"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "duplicate-id",
+              "data": "portal",
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Document has no static elements that share the same id attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div id=\"portal\" data-testid=\"portal\" class=\"st-emotion-cache-1q6lfs0 erw9t6i0\"></div>",
+          "target": [
+            "#portal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-has-lang",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "ACT",
+        "TTv5",
+        "TT11.a"
+      ],
+      "description": "Ensures every HTML document has a lang attribute",
+      "help": "<html> element must have a lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/html-has-lang?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "has-lang",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "The <html> element has a lang attribute"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"en\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html-lang-valid",
+      "impact": null,
+      "tags": [
+        "cat.language",
+        "wcag2a",
+        "wcag311",
+        "ACT",
+        "TTv5",
+        "TT11.a"
+      ],
+      "description": "Ensures the lang attribute of the <html> element has a valid value",
+      "help": "<html> element must have a valid value for the lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/html-lang-valid?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "valid-lang",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Value of lang attribute is included in the list of valid languages"
+            }
+          ],
+          "impact": null,
+          "html": "<html lang=\"en\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "image-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "wcag2a",
+        "wcag111",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT7.a",
+        "TT7.b"
+      ],
+      "description": "Ensures <img> elements have alternate text or a role of none or presentation",
+      "help": "Images must have alternate text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/image-alt?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "has-alt",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has an alt attribute"
+            }
+          ],
+          "all": [],
+          "none": [
+            {
+              "id": "alt-space-value",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element has a valid alt attribute value"
+            }
+          ],
+          "impact": null,
+          "html": "<img src=\"data:image/gif;base64,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\" alt=\"Running...\" class=\"st-emotion-cache-1j15ncu en6cib62\">",
+          "target": [
+            "img"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "image-redundant-alt",
+      "impact": null,
+      "tags": [
+        "cat.text-alternatives",
+        "best-practice"
+      ],
+      "description": "Ensure image alternative is not repeated as text",
+      "help": "Alternative text of images should not be repeated as text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/image-redundant-alt?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [],
+          "none": [
+            {
+              "id": "duplicate-img-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Element does not duplicate existing text in <img> alt text"
+            }
+          ],
+          "impact": null,
+          "html": "<img src=\"data:image/gif;base64,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\" alt=\"Running...\" class=\"st-emotion-cache-1j15ncu en6cib62\">",
+          "target": [
+            "img"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "landmark-banner-is-top-level",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the banner landmark is at top level",
+      "help": "Banner landmark should not be contained in another landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-banner-is-top-level?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "landmark-is-top-level",
+              "data": {
+                "role": "banner"
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "The banner landmark is at the top level."
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+          "target": [
+            "header"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "landmark-no-duplicate-banner",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the document has at most one banner landmark",
+      "help": "Document should not have more than one banner landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-no-duplicate-banner?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "page-no-duplicate-banner",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "Document does not have more than one banner landmark"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+          "target": [
+            "header"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "landmark-one-main",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensures the document has a main landmark",
+      "help": "Document should have one main landmark",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-one-main?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "page-has-main",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "Document has at least one main landmark"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"en\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "landmark-unique",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "help": "Ensures landmarks are unique",
+      "description": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/landmark-unique?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "landmark-is-unique",
+              "data": {
+                "role": "banner",
+                "accessibleText": null
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "Landmarks must have a unique role or role/label/title (i.e. accessible name) combination"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+          "target": [
+            "header"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meta-viewport-large",
+      "impact": null,
+      "tags": [
+        "cat.sensory-and-visual-cues",
+        "best-practice"
+      ],
+      "description": "Ensures <meta name=\"viewport\"> can scale a significant amount",
+      "help": "Users should be able to zoom and scale the text up to 500%",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/meta-viewport-large?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "meta-viewport-large",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "<meta> tag does not prevent significant zooming on mobile devices"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,shrink-to-fit=no\">",
+          "target": [
+            "meta[name=\"viewport\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "meta-viewport",
+      "impact": null,
+      "tags": [
+        "cat.sensory-and-visual-cues",
+        "wcag2aa",
+        "wcag144",
+        "ACT"
+      ],
+      "description": "Ensures <meta name=\"viewport\"> does not disable text scaling and zooming",
+      "help": "Zooming and scaling must not be disabled",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/meta-viewport?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "meta-viewport",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "<meta> tag does not disable zooming on mobile devices"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,shrink-to-fit=no\">",
+          "target": [
+            "meta[name=\"viewport\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nested-interactive",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "wcag2a",
+        "wcag412",
+        "TTv5",
+        "TT4.a"
+      ],
+      "description": "Ensures interactive controls are not nested as they are not always announced by screen readers or can cause focus problems for assistive technologies",
+      "help": "Interactive controls must not be nested",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/nested-interactive?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<img src=\"data:image/gif;base64,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\" alt=\"Running...\" class=\"st-emotion-cache-1j15ncu en6cib62\">",
+          "target": [
+            "img"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-sa9oi8 ef3psqc5\">Stop</button>",
+          "target": [
+            ".st-emotion-cache-sa9oi8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-ztfqz8 ef3psqc5\"><div class=\"st-emotion-cache-1wbqy5l e17vllj40\"><span>Deploy</span></div></button>",
+          "target": [
+            ".st-emotion-cache-ztfqz8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "no-focusable-content",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have focusable descendants"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"headerNoPadding\" data-testid=\"baseButton-headerNoPadding\" class=\"st-emotion-cache-iiif1v ef3psqc4\">",
+          "target": [
+            ".st-emotion-cache-iiif1v"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "page-has-heading-one",
+      "impact": null,
+      "tags": [
+        "cat.semantics",
+        "best-practice"
+      ],
+      "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
+      "help": "Page should contain a level-one heading",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/page-has-heading-one?application=axeAPI",
+      "nodes": [
+        {
+          "any": [],
+          "all": [
+            {
+              "id": "page-has-heading-one",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "Page has at least one level-one heading"
+            }
+          ],
+          "none": [],
+          "impact": null,
+          "html": "<html lang=\"en\">",
+          "target": [
+            "html"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "region",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "best-practice"
+      ],
+      "description": "Ensures all page content is contained by landmarks",
+      "help": "All page content should be contained by landmarks",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/region?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div id=\"root\">",
+          "target": [
+            "#root"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"\">",
+          "target": [
+            "#root > div:nth-child(1)"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"withScreencast\" data-testid=\"stScreencast\">",
+          "target": [
+            ".withScreencast"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div tabindex=\"-1\">",
+          "target": [
+            ".withScreencast > div"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"stApp stAppEmbeddingId-srxqsx4ocazj streamlit-wide st-emotion-cache-1r4qj8v erw9t6i1\" data-testid=\"stApp\" data-teststate=\"running\">",
+          "target": [
+            ".stApp"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+          "target": [
+            "header"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stDecoration\" id=\"stDecoration\" class=\"st-emotion-cache-1dp5vir ezrtsby1\"></div>",
+          "target": [
+            "#stDecoration"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stToolbar\" class=\"st-emotion-cache-zq5wmm ezrtsby0\">",
+          "target": [
+            ".st-emotion-cache-zq5wmm"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stStatusWidget\" class=\"st-emotion-cache-19or5k2 en6cib61 StatusWidget-appear-done StatusWidget-enter-done\">",
+          "target": [
+            ".st-emotion-cache-19or5k2"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"st-emotion-cache-4z1n4l en6cib65\">",
+          "target": [
+            ".st-emotion-cache-4z1n4l"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<img src=\"data:image/gif;base64,R0lGODlhgACAAPAAAAAAAAAAACH5BAkUAAEAIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAgACAAAAC/oyPqcvtD6OctNqLs968+w+G4kiW5omm6sq27gvH8kzX9o3nKcD3vA5s+Ia9oNFATAKOQKWSiXM6oTbpkzqzTrEx7ZX78ibBYfGYzDKf0So1kZ12/+Ar+Zy+s+Pr7j1f7ffnFRinRegiddg1pNho5OMIKbhGZpXXl6N3YrdlwvlF8ik6SioZWoqaauap2ur6xvoqm4oya1t6easL2Lbra1j2+5sp3ApWjKmI7Bghy1zh/DwRLd38Wi1Bje2gvc3Q7a0AHo4wTo50fb5gfs5O7h4O7y2/TY9tX40vrf/Mz+wfKZ26BAAbFVQmcOCBg4cYEnIYCKIfiXso4rFIByMcnY1sOKLxWCmhwgCWhCQaufDkN5UoS67s1JKlOJkKXa6jOdDmTJgjdRLEqc5nOaDtiJI0Gs+o0KBKkc5ryrMmVFA9p1KqGnVoVqZb0XV9ZxUWyqNflxYt67ReWEZjyVL9+TUp2rhP577NudZUTLtXpfIVu/duSrpq/7Id6zRtYcAvGQfWy60vYsgPDre9jDmz5s2cO3v+DDq06NEnCgAAIfkECRQAAQAsAAAAAIAAgAAAAv6Mj6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/JM1/aN5/rO9/4P1AGGxGGwV0wSjzmlE8C0PZ/R2XRahV2vWdcW22V9qeHV2FlWnclp0xrddr+T8dN8WZff8/o5v3/2BzgmOMhVaAiHaAe2qEbnGCk56XBHSLlgaYl5oOmJ6Rk6GUoaSVrqeIpaqLoq2OqaBxtbNyv6eljZyprbAMvL5vuLG8wwTKxofIxcBLGM2Oz8zKm8S/0wfZ0wq62r2i1sDa6QPc49Ti6O3lkObFR9Opq8rc6sBB/v3kj/rb/PXi/Om0wB2/jh10/WQQTtumxCaGsekocMI2758QmixfZiNxbi28ixxpoIIC91NCmtZC+RXyiobCkFpsuX/2TIrEAz5IubOHNK3Hkxg897NIJuGIrHptGjSIuubPLUS9STNaVWpapTzFWsP1tM5UpUadaYW82U1bA05dhHa4V+JXg2RVoPc721RVGXQ96PkMTetbAX7t9EST8EFtzV69sLh9PFlbu4Z2SNff0OVps43GXChd1OphzNaWNsPEl+xotS8umKj9mOdvwadGcrqUnXlhAbciDbt3Gv1j0QoEfVmbUMRfvbtUqmm82+7NDaOEjDYSdaDBEayPV1wmlxz8dd88jwvnOTP48+vfr17Nu7fw8/vnz4BQAAIfkECRQAAQAsAAAAAIAAgAAAAv6Mj6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/IG1PaMc/a+537FC9Z+xIfwWEwmjkylkgl1FqFN6Y9atc6wWW2Mi/TKwELxmMwzf9E99YvddrvgQ/kcbofh828yf431FxK2ECjowcVAeKgDxsjC9phCJ2lCV1c5eImZ2bEZ16nxmRaaMRpUenFaljqxutja8NoVqzAbVWt7i5trsJuYOxuAVivsS1xqfBDZqYxAKfkquyko7TDKtxpxasctge3m7foZTq56KUdtCq2G3ojcvofomC4PQpVtr0ma594ryu4fBn8CB+orCOQgwnHMYuH7ppAGLxQRn1WkcFGiuv5p8Axu9GRNUcOE2t450+UH4y6AvwBcSwmx5bmWnFAa2kazJoScoGxOfMnTZUxgPn8uuQkUqUV6RpQmpXXUaFFWOB9yhFoV6zKpS7U+hRUVLEOvw8g6HUt1as+ZadXq7IpKo1ircuMW8srVAt1jYte1hcvP7T1aeT3+5Xu4bGKWacn6tRsWMuAbIrr0BXlYquPH/DZzXqs482WTpEZjDrx17uJ5cU2TXmvUM+MesmdTnnw7NeoRGU/Dhur69V4SYGOv/tCxRHHgx1kTtfTXuGTiMKFPl76bd3Xl0ZlP187U+m7soCtvp37de3bz4bmnX/6dfXvw49WXH1wmuO3ciK/fx0fOin6fvaVZc3VRVhtboBX4n29tJEhSfH1BqBJVFGa1Xn9CiWSgXosUZliGEYoYImoXfnXfiCR62J2AO53IYYcYZgfiUDLOuCKO/OnmoltvHZjjVZed9WKNJTYo5HHPFQmjjin6uONdRPJo5ICmzZckTRQF9WOWK00SlIK33CHTkeK0UOZ+H5FZknMEnWGOfOf5EJB7VeKw5EJ67slnn37+CWiggg5KaKGGMlIAACH5BAkUAAEALAAAAACAAIAAAAL+jI+py+0Po5y02ouz3rz7D4biSJbmiabqyrbuC8cyBNT2jHP2vud+xQvefsSG8AgoKhFI5HLZPD6LUefUV5Vec1nhFtfVfmFh75hc5p3R6do61na/X/HknJ6+s8P6fbUPlwUo8zc4I2aYqLjI2Ehk5rhSGGlSRilSd+lRJ6eZwdnjCQQaJCpBimi6gNqkqsAq6GoAG6tKy2d6aymqi6vZu3sJ7BuZN0sr3JWgSzm5zOwYxTAc3bpKzSh9ja2o/To8ZOj9DB7eN34AGtAGiH6cyXnnvp75Hj82f5+u/pVfz8TviruAAPU9GWiwYJwtCBc6+HfQmkJjD9gJtELOYoTpYFMw7oO40VlHSBMpjiLZL9Q3hxtUZgMpa0LCmCFh0qw48+ZDgjp3kuqJExXQaciGZmRltKTQpPSgGf3DsmcsjVLHUb0p0iTWhsqqSlTq8Y1LCrWOfj0zj+hZs6lSElsZFm5chjBFbpt7sZw5I2vz6rVDo+/Iv4CDtqX795TgwXoV4/XLLfBjyL1kLkbrtObhdj/JXhanVTPKX5/5TvZUGENappI3szY8+nXr2LJ9uq59lzbu3KV2i+7tGzbw4KZvE29qnPjq48h1M19+HLry0sGlV6d+3Tnz5mO3y+3kvWL48eTLmz8PoQAAIfkECRQAAQAsAAAAAIAAgAAAAv6Mj6nL7Q+jnLTai7PevPsPhuJIluaJpurKtu4Lx/JM1/aN5/rO9/4PDAqHQ4DRWDseiQalc8l6PoXSKgBllQKz1RJX2/taRWLwrjz2oM25dbfjdvLibAxdrrvXK3pou49nAeiHM6h0YXiVl4jEZxjG6Dj4EzmRSARo+cgUoCdxydlEFwEa2jn6UGp66gYxuYqA2vAKeyDL0FercLtwp9sb5+D7uxs820oMjHz8lSxs/PzmHL32STjNDI0Nl7vNseltpxquWUluzdh4npp+uJ7drv4eGz81b1u/R56fts6f5e8fwHACm20rKAYbwjLOulFD03BZOYYRDYqzOI3Lt/aB++x98HgvpMiRJEuaPIkypcqKIDVw3NDPBUREMwVRTDEMnUR22khk4ukJKK+P4/AVFQWO28KlP2EyferwItSpPSVRvXqTJtatGjNw/RrTZldltBKYKzZWa1iyQ9EGfdhSbFx4NUm1xSXNZSAK1dRinCjvxlqpc1caPow4seLFjBs7hqTP7169kXFm5VsXc0IVb13dxVs1RFO6oc1GBXGW3lFWZTeCBav0NWzKsl/Trv31Nu6tundf7V2Y9WjVrYkPBhzcaGfQy9kmt1vZbV+d0z1HB0w4rebNVgPbOC73+ePx5MubP48+vfr17Nu7fw8/vvzGBQAAIfkECRQAAQAsAAAAAIAAgAAAAv6Mj6nL7Q+jnLTai7PevPsPhuJIluaJphPAAuoLI+3cxrZJ5+7Ne/q/6wkvQN3wSCn+kEyHEtiMJp5LqZVqtEaxVS2Sm/UewTnxlzwzn9HqNbk9RgfhPTY9jr27n3omv99UBKiVNmh4iJiouMjY6FhX9hijJJnCVVnyhhkit/khx+LJARoqmkFaY0qEOqcqwVrq+gobK+tEW2u7gJuqu8ub62sA3Cs8TBxsi1wovMys7PysGh05TV29eQ1Vqf2H2N35jXyMKg4sw3o4jl5ueK4Aq07bEO+efts+eI9PKp/PUM/eP3j7BPYDWFDcAU0EBzZiyO4gNzC/JE681DBcNvCKGSFi8kgO5MU8HUmaEmnHGsYpHF2hXOmyZURKul7S/JjM5raRrUJSqdjlUZiZ3ohKY7TTqKCSyRTdVJp0ITakRaXCtNrUXFWsWwMUo3qV69OFkjSyNLnRLNShZR36HPsw4NmfQuchROs07Aq9+vjuxdsX8CrBd2RuMFzYLwbEbRiPcutH8WHIQxx/ogyJ7omEeOBmwmxDswrOmaOOBv3C82mLQkzDkNt6amjYpXvOpm1srcjcXnnxZopa1rrfvd8RL47ruNjg0HATd36ceW5Qyh+krE5PMva3Qbfz6+79O43wSdiShyD7PPqv6tsbKgAAOw==\" alt=\"Running...\" class=\"st-emotion-cache-1j15ncu en6cib62\">",
+          "target": [
+            "img"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<label class=\"st-emotion-cache-klqnuk en6cib64\">Running...</label>",
+          "target": [
+            "label"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span class=\"st-emotion-cache-14x9thb en6cib63\"><button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-sa9oi8 ef3psqc5\">Stop</button></span>",
+          "target": [
+            ".st-emotion-cache-14x9thb"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-sa9oi8 ef3psqc5\">Stop</button>",
+          "target": [
+            ".st-emotion-cache-sa9oi8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stToolbarActions\" class=\"st-emotion-cache-1p1m4ay e3g6aar0\"></div>",
+          "target": [
+            ".st-emotion-cache-1p1m4ay"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"stDeployButton\" data-testid=\"stDeployButton\"><button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-ztfqz8 ef3psqc5\"><div class=\"st-emotion-cache-1wbqy5l e17vllj40\"><span>Deploy</span></div></button></div>",
+          "target": [
+            ".stDeployButton"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"header\" data-testid=\"baseButton-header\" class=\"st-emotion-cache-ztfqz8 ef3psqc5\"><div class=\"st-emotion-cache-1wbqy5l e17vllj40\"><span>Deploy</span></div></button>",
+          "target": [
+            ".st-emotion-cache-ztfqz8"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"st-emotion-cache-1wbqy5l e17vllj40\"><span>Deploy</span></div>",
+          "target": [
+            ".st-emotion-cache-1wbqy5l"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span>Deploy</span>",
+          "target": [
+            ".st-emotion-cache-1wbqy5l > span"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<span id=\"MainMenu\" data-testid=\"stMainMenu\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"st-emotion-cache-czk5ss e16jpq800\">",
+          "target": [
+            "#MainMenu"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<button kind=\"headerNoPadding\" data-testid=\"baseButton-headerNoPadding\" class=\"st-emotion-cache-iiif1v ef3psqc4\">",
+          "target": [
+            ".st-emotion-cache-iiif1v"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"appview-container st-emotion-cache-1wrcr25 ea3mdgi9\" data-testid=\"stAppViewContainer\" data-layout=\"wide\">",
+          "target": [
+            ".appview-container"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<section tabindex=\"0\" class=\"main st-emotion-cache-uf99v8 ea3mdgi8\">",
+          "target": [
+            "section"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"block-container st-emotion-cache-z5fcl4 ea3mdgi5\" data-testid=\"stAppViewBlockContainer\">",
+          "target": [
+            ".block-container"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stVerticalBlockBorderWrapper\" data-test-scroll-behavior=\"normal\" class=\"st-emotion-cache-0 e1f1d6gn0\">",
+          "target": [
+            ".st-emotion-cache-0"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"st-emotion-cache-1wmy9hl e1f1d6gn1\">",
+          "target": [
+            ".st-emotion-cache-1wmy9hl"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div width=\"1120\" data-testid=\"stVerticalBlock\" class=\"st-emotion-cache-40pabj e1f1d6gn2\">",
+          "target": [
+            ".st-emotion-cache-40pabj"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-stale=\"false\" width=\"1120\" class=\"element-container st-emotion-cache-1c0zmyd e1f1d6gn4\" data-testid=\"element-container\">",
+          "target": [
+            ".element-container"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"stMarkdown\" data-testid=\"stMarkdown\" style=\"width: 1120px;\">",
+          "target": [
+            ".stMarkdown"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"stMarkdownContainer\" class=\"st-emotion-cache-eqffof e1nzilvr5\">",
+          "target": [
+            ".st-emotion-cache-eqffof"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div data-testid=\"IframeResizerAnchor\" data-iframe-height=\"true\" class=\"st-emotion-cache-1dumvfu ea3mdgi0\"></div>",
+          "target": [
+            ".st-emotion-cache-1dumvfu"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div id=\"portal\" data-testid=\"portal\" class=\"st-emotion-cache-1q6lfs0 erw9t6i0\"></div>",
+          "target": [
+            "#portal"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "region",
+              "data": {
+                "isIframe": false
+              },
+              "relatedNodes": [],
+              "impact": "moderate",
+              "message": "All page content is contained by landmarks"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div class=\"\"></div>",
+          "target": [
+            "#root > div:nth-child(2)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tabindex",
+      "impact": null,
+      "tags": [
+        "cat.keyboard",
+        "best-practice"
+      ],
+      "description": "Ensures tabindex attribute values are not greater than 0",
+      "help": "Elements should not have tabindex greater than zero",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/tabindex?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "tabindex",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have a tabindex greater than 0"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<div tabindex=\"-1\">",
+          "target": [
+            ".withScreencast > div"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "tabindex",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have a tabindex greater than 0"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+          "target": [
+            "header"
+          ]
+        },
+        {
+          "any": [
+            {
+              "id": "tabindex",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element does not have a tabindex greater than 0"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": null,
+          "html": "<section tabindex=\"0\" class=\"main st-emotion-cache-uf99v8 ea3mdgi8\">",
+          "target": [
+            "section"
+          ]
+        }
+      ]
+    }
+  ],
+  "incomplete": [],
+  "violations": [
+    {
+      "id": "aria-allowed-attr",
+      "impact": "critical",
+      "tags": [
+        "cat.aria",
+        "wcag2a",
+        "wcag412"
+      ],
+      "description": "Ensures ARIA attributes are allowed for an element's role",
+      "help": "Elements must only use allowed ARIA attributes",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/aria-allowed-attr?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "aria-allowed-attr",
+              "data": [
+                "aria-expanded=\"false\""
+              ],
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "ARIA attribute is not allowed: aria-expanded=\"false\""
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "critical",
+          "html": "<span id=\"MainMenu\" data-testid=\"stMainMenu\" aria-haspopup=\"true\" aria-expanded=\"false\" class=\"st-emotion-cache-czk5ss e16jpq800\">",
+          "target": [
+            "#MainMenu"
+          ],
+          "failureSummary": "Fix any of the following:\n  ARIA attribute is not allowed: aria-expanded=\"false\""
+        }
+      ]
+    },
+    {
+      "id": "button-name",
+      "impact": "critical",
+      "tags": [
+        "cat.name-role-value",
+        "wcag2a",
+        "wcag412",
+        "section508",
+        "section508.22.a",
+        "ACT",
+        "TTv5",
+        "TT6.a"
+      ],
+      "description": "Ensures buttons have discernible text",
+      "help": "Buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/button-name?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "button-has-visible-text",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "critical",
+              "message": "Element does not have inner text that is visible to screen readers"
+            },
+            {
+              "id": "aria-label",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "aria-label attribute does not exist or is empty"
+            },
+            {
+              "id": "aria-labelledby",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty"
+            },
+            {
+              "id": "non-empty-title",
+              "data": {
+                "messageKey": "noAttr"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element has no title attribute"
+            },
+            {
+              "id": "presentational-role",
+              "data": null,
+              "relatedNodes": [],
+              "impact": "minor",
+              "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "critical",
+          "html": "<button kind=\"headerNoPadding\" data-testid=\"baseButton-headerNoPadding\" class=\"st-emotion-cache-iiif1v ef3psqc4\">",
+          "target": [
+            ".st-emotion-cache-iiif1v"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+        }
+      ]
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "tags": [
+        "cat.color",
+        "wcag2aa",
+        "wcag143",
+        "ACT",
+        "TTv5",
+        "TT13.c"
+      ],
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.7/color-contrast?application=axeAPI",
+      "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "fgColor": "#a3a8b8",
+                "bgColor": "#ffffff",
+                "contrastRatio": 2.37,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": null,
+                "expectedContrastRatio": "4.5:1",
+                "shadowColor": null
+              },
+              "relatedNodes": [
+                {
+                  "html": "<header tabindex=\"-1\" data-testid=\"stHeader\" class=\"st-emotion-cache-18ni7ap ezrtsby2\">",
+                  "target": [
+                    "header"
+                  ]
+                }
+              ],
+              "impact": "serious",
+              "message": "Element has insufficient color contrast of 2.37 (foreground color: #a3a8b8, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<label class=\"st-emotion-cache-klqnuk en6cib64\">Running...</label>",
+          "target": [
+            "label"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.37 (foreground color: #a3a8b8, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ]
+}

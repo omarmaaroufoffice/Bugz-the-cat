@@ -23,4 +23,10 @@ python-magic>=0.4.27
 streamlit-option-menu>=0.3.12
 watchdog>=3.0.0
 opencv-python>=4.9.0
-moviepy==1.0.3 
+moviepy==1.0.3
+# Accessibility testing libraries
+axe-selenium-python>=2.1.6
+selenium>=4.15.2
+webdriver-manager>=4.0.1
+pytest>=7.4.3
+pytest-html>=4.1.1 

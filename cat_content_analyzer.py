@@ -80,6 +80,21 @@ class CatContentAnalyzer:
             )
             ''')
 
+            # Add file_hash column if it doesn't exist
+            cursor.execute('''
+            SELECT COUNT(*) FROM pragma_table_info('content_analysis') WHERE name='file_hash'
+            ''')
+            if cursor.fetchone()[0] == 0:
+                cursor.execute('''
+                ALTER TABLE content_analysis ADD COLUMN file_hash TEXT
+                ''')
+
+            # Add index on file_hash for faster duplicate checking
+            cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_content_analysis_file_hash 
+            ON content_analysis(file_hash)
+            ''')
+
             cursor.execute('''
             CREATE TABLE IF NOT EXISTS category_scores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

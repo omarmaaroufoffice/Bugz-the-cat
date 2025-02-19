@@ -10,8 +10,15 @@ from cat_content_analyzer import CatContentAnalyzer
 from PIL import Image
 import io
 import sqlite3
+from custom_components import (
+    custom_menu_button,
+    custom_scrollable_region,
+    custom_header_button,
+    add_accessibility_support,
+    make_accessible
+)
 
-# Set page config
+# Set page config with improved accessibility
 st.set_page_config(
     page_title="Cat Content Control Center",
     page_icon="🐱",
@@ -28,6 +35,15 @@ st.set_page_config(
         """
     }
 )
+
+# Add global accessibility support
+add_accessibility_support()
+
+# Add skip link for keyboard navigation
+st.markdown("""
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <main id="main-content" role="main">
+""", unsafe_allow_html=True)
 
 # Custom CSS for modern design and better contrast
 st.markdown("""
@@ -69,16 +85,33 @@ st.markdown("""
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
         color: var(--light-text);
         border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        font-size: 1rem;
         border: none;
         transition: all 0.3s ease;
+        min-width: 120px;
+        text-align: center;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .stButton > button:hover {
         background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
+    }
+
+    .stButton > button:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    .stButton > button:active {
+        transform: translateY(1px);
     }
 
     /* Text inputs and text areas */
@@ -282,6 +315,93 @@ st.markdown("""
     .dataframe {
         color: #1A1A1A !important;
     }
+
+    /* Main menu button */
+    [data-testid="stMainMenu"] {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: var(--light-text);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    [data-testid="stMainMenu"]:hover {
+        background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-testid="stMainMenu"] span {
+        color: var(--light-text) !important;
+        font-weight: 500;
+    }
+
+    /* Ensure proper ARIA support for menu button */
+    [data-testid="stMainMenu"][aria-expanded="true"] {
+        background: var(--gradient-end);
+    }
+
+    [data-testid="stMainMenu"][aria-haspopup="true"] {
+        cursor: pointer;
+    }
+
+    /* Improve button visibility and contrast */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: var(--light-text);
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        transition: all 0.3s ease;
+        min-width: 120px;
+        text-align: center;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .stButton > button:hover {
+        background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .stButton > button:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    .stButton > button:active {
+        transform: translateY(1px);
+    }
+
+    /* Ensure proper contrast for running status */
+    label.st-emotion-cache-klqnuk {
+        color: #1A1A1A !important;
+        font-weight: 500;
+        background-color: #E8F5E9;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--gradient-start);
+    }
+
+    /* Fix main menu button accessibility */
+    [data-testid="stMainMenu"] {
+        visibility: hidden;
+        position: absolute;
+    }
+    
+    /* Custom accessible menu button */
+    .custom-menu-button {
+        position: fixed;
+        top: 0.5rem;
+        right: 0.5rem;
+        z-index: 1000;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -394,11 +514,19 @@ def analyze_media(uploaded_files):
         temp_path.parent.mkdir(parents=True, exist_ok=True)
         
         try:
-            # Check if file was already analyzed
+            # Calculate file hash for duplicate checking
+            file_content = file.getvalue()
+            import hashlib
+            file_hash = hashlib.md5(file_content).hexdigest()
+            
+            # Check if file was already analyzed using both filename and hash
             cursor.execute("""
-                SELECT * FROM content_analysis 
-                WHERE original_filename = ?
-            """, (file.name,))
+                SELECT ca.*, cs.category, cs.score 
+                FROM content_analysis ca
+                LEFT JOIN category_scores cs ON ca.id = cs.analysis_id
+                WHERE (ca.original_filename = ? OR ca.file_hash = ?)
+                GROUP BY ca.id
+            """, (file.name, file_hash))
             existing_analysis = cursor.fetchone()
             
             if existing_analysis:
@@ -424,23 +552,34 @@ def analyze_media(uploaded_files):
                     'key_strengths': existing_analysis[8],
                     'improvement_suggestions': existing_analysis[9],
                     'timestamp': existing_analysis[10],
+                    'file_hash': existing_analysis[11] if len(existing_analysis) > 11 else file_hash,
                     'scores': scores
                 }
                 
                 # Save the file for display
                 with open(temp_path, "wb") as f:
-                    f.write(file.getbuffer())
+                    f.write(file_content)
                 
-                st.info(f"Found existing analysis for {file.name}")
+                st.info(f"Found existing analysis for {file.name} - Skipping reanalysis")
             else:
                 # Save the file for new analysis
                 with open(temp_path, "wb") as f:
-                    f.write(file.getbuffer())
+                    f.write(file_content)
                 
                 # Analyze the file
                 analysis = st.session_state.analyzer.analyze_media(str(temp_path))
                 analysis['original_filename'] = file.name
                 analysis['file_path'] = str(temp_path)
+                analysis['file_hash'] = file_hash
+                
+                # Store the file hash in the database for future duplicate checking
+                cursor.execute("""
+                    UPDATE content_analysis 
+                    SET file_hash = ? 
+                    WHERE id = ?
+                """, (file_hash, analysis.get('id')))
+                conn.commit()
+                
                 st.success(f"New analysis completed for {file.name}")
             
             results.append(analysis)
@@ -455,44 +594,45 @@ def analyze_media(uploaded_files):
     return results
 
 def display_analysis_results(analysis):
-    """Display analysis results in a structured format."""
+    """Display analysis results in a structured format with improved accessibility."""
     col1, col2 = st.columns([2, 3])
     
     with col1:
-        st.subheader("Media Info")
+        st.markdown(f"### Media Info")
         load_and_display_media(analysis['file_path'])
-        st.write(f"File: {analysis['original_filename']}")
-        st.write(f"Type: {analysis['media_type']}")
+        st.markdown(f"**File:** {analysis['original_filename']}")
+        st.markdown(f"**Type:** {analysis['media_type']}")
     
     with col2:
-        st.subheader("Analysis Results")
+        st.markdown("### Analysis Results")
         
-        # Display scores
+        # Display scores in an accessible scrollable region
         scores_df = pd.DataFrame(
             analysis['scores'].items(),
             columns=['Category', 'Score']
         )
-        st.write("Category Scores:")
-        st.dataframe(scores_df, use_container_width=True)
+        st.markdown("**Category Scores:**")
+        scores_html = scores_df.to_html(index=False, classes="styled-table")
+        custom_scrollable_region(scores_html, max_height="200px", label="Category scores table", key=f"scores_{analysis['file_path']}")
         
-        st.write(f"Total Score: {analysis['total_score']}/50")
+        st.markdown(f"**Total Score:** {analysis['total_score']}/50")
         
-        # Display generated content
-        st.write("Generated Caption:")
-        st.text_area("Caption", analysis['caption'], key=f"caption_{analysis['file_path']}")
+        # Display generated content in accessible format
+        st.markdown("**Generated Caption:**")
+        caption = st.text_area("Caption", analysis['caption'], key=f"caption_{analysis['file_path']}", help="Generated caption for the media")
         
-        st.write("Hashtags:")
-        st.text_area("Hashtags", analysis['hashtags'], key=f"hashtags_{analysis['file_path']}")
+        st.markdown("**Hashtags:**")
+        hashtags = st.text_area("Hashtags", analysis['hashtags'], key=f"hashtags_{analysis['file_path']}", help="Generated hashtags for the media")
         
-        # Display platform-specific tips
+        # Display tips in accessible expandable sections
         with st.expander("Engagement Tips"):
-            st.write(analysis['engagement_tips'])
+            custom_scrollable_region(analysis['engagement_tips'], max_height="150px", label="Engagement tips", key=f"tips_{analysis['file_path']}")
         
         with st.expander("Key Strengths"):
-            st.write(analysis['key_strengths'])
+            custom_scrollable_region(analysis['key_strengths'], max_height="150px", label="Key strengths", key=f"strengths_{analysis['file_path']}")
         
         with st.expander("Improvement Suggestions"):
-            st.write(analysis['improvement_suggestions'])
+            custom_scrollable_region(analysis['improvement_suggestions'], max_height="150px", label="Improvement suggestions", key=f"improvements_{analysis['file_path']}")
 
 def schedule_post(analysis):
     """Add post to pending schedule."""
@@ -666,7 +806,7 @@ def view_analytics():
         st.info("No posted content yet.")
         return
     
-    st.subheader("Posting History")
+    st.markdown("### Posting History")
     
     # Create DataFrame for analytics
     posts_data = []
@@ -681,28 +821,110 @@ def view_analytics():
     
     df = pd.DataFrame(posts_data)
     
-    # Display metrics
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Posts", len(df))
-    with col2:
-        st.metric("Average Score", f"{df['Total Score'].mean():.1f}")
-    with col3:
-        st.metric("Images", len(df[df['Media Type'] == 'image']))
-    with col4:
-        st.metric("Videos", len(df[df['Media Type'] == 'video']))
+    # Display metrics in an accessible format
+    metrics_container = """
+        <div role="region" aria-label="Analytics metrics" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1rem 0;">
+    """
     
-    # Display posting history
-    st.subheader("Recent Posts")
-    st.dataframe(df, use_container_width=True)
+    metrics = [
+        {'label': 'Total Posts', 'value': len(df)},
+        {'label': 'Average Score', 'value': f"{df['Total Score'].mean():.1f}"},
+        {'label': 'Images', 'value': len(df[df['Media Type'] == 'image'])},
+        {'label': 'Videos', 'value': len(df[df['Media Type'] == 'video'])}
+    ]
     
-    # Platform distribution
-    st.subheader("Platform Distribution")
+    for metric in metrics:
+        metrics_container += f"""
+            <div role="article" aria-label="{metric['label']} metric" style="
+                background: linear-gradient(135deg, #C8E6C9, #A5D6A7);
+                padding: 1rem;
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid rgba(46, 125, 50, 0.2);
+            ">
+                <div style="font-size: 0.875rem; color: #1A1A1A; margin-bottom: 0.5rem;">{metric['label']}</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #2E7D32;">{metric['value']}</div>
+            </div>
+        """
+    
+    metrics_container += "</div>"
+    st.markdown(metrics_container, unsafe_allow_html=True)
+    
+    # Display posting history in an accessible table
+    st.markdown("### Recent Posts")
+    table_html = df.to_html(
+        index=False,
+        classes=['styled-table'],
+        table_id='posting-history'
+    )
+    custom_scrollable_region(
+        f"""
+        <div role="region" aria-label="Posting history table">
+            {table_html}
+        </div>
+        """,
+        max_height="400px",
+        label="Posting history",
+        key="posting_history"
+    )
+    
+    # Platform distribution with accessible chart
+    st.markdown("### Platform Distribution")
     platform_counts = df['Platforms'].str.split(", ").explode().value_counts()
-    st.bar_chart(platform_counts)
     
-    # Database Analytics
-    st.subheader("Database Analytics")
+    # Create accessible bar chart
+    chart_container = """
+        <div role="region" aria-label="Platform distribution chart" style="margin: 1rem 0;">
+            <table class="styled-table" style="width: 100%;">
+                <caption style="font-weight: bold; margin-bottom: 0.5rem;">Posts by Platform</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Platform</th>
+                        <th scope="col">Number of Posts</th>
+                        <th scope="col">Visual Representation</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    max_count = platform_counts.max()
+    for platform, count in platform_counts.items():
+        percentage = (count / max_count) * 100
+        chart_container += f"""
+            <tr>
+                <th scope="row">{platform}</th>
+                <td>{count}</td>
+                <td>
+                    <div style="
+                        width: {percentage}%;
+                        height: 24px;
+                        background: linear-gradient(135deg, #2E7D32, #43A047);
+                        border-radius: 4px;
+                        position: relative;
+                    " role="img" aria-label="{platform}: {count} posts">
+                        <span style="
+                            position: absolute;
+                            left: 8px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            color: white;
+                            font-weight: bold;
+                        ">{count}</span>
+                    </div>
+                </td>
+            </tr>
+        """
+    
+    chart_container += """
+                </tbody>
+            </table>
+        </div>
+    """
+    
+    st.markdown(chart_container, unsafe_allow_html=True)
+    
+    # Database Analytics with improved accessibility
+    st.markdown("### Database Analytics")
     
     # Get posting history from database
     posting_history = st.session_state.analyzer.get_posting_history()
@@ -713,28 +935,137 @@ def view_analytics():
         )
         
         # Display success rate by platform
-        st.write("Success Rate by Platform")
+        st.markdown("#### Success Rate by Platform")
         success_rate = history_df.groupby('Platform')['Status'].apply(
             lambda x: (x == 'success').mean() * 100
         ).round(1)
-        success_df = pd.DataFrame({
-            'Platform': success_rate.index,
-            'Success Rate (%)': success_rate.values
-        })
-        st.dataframe(success_df, use_container_width=True)
+        
+        success_table = """
+            <div role="region" aria-label="Success rate by platform">
+                <table class="styled-table" style="width: 100%;">
+                    <caption style="font-weight: bold; margin-bottom: 0.5rem;">Platform Success Rates</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Platform</th>
+                            <th scope="col">Success Rate</th>
+                            <th scope="col">Visual Indicator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+        
+        for platform, rate in success_rate.items():
+            success_table += f"""
+                <tr>
+                    <th scope="row">{platform}</th>
+                    <td>{rate}%</td>
+                    <td>
+                        <div style="
+                            width: {rate}%;
+                            height: 24px;
+                            background: linear-gradient(135deg, #2E7D32, #43A047);
+                            border-radius: 4px;
+                            position: relative;
+                        " role="img" aria-label="{platform} success rate: {rate}%">
+                            <span style="
+                                position: absolute;
+                                left: 8px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                color: white;
+                                font-weight: bold;
+                            ">{rate}%</span>
+                        </div>
+                    </td>
+                </tr>
+            """
+        
+        success_table += """
+                    </tbody>
+                </table>
+            </div>
+        """
+        
+        st.markdown(success_table, unsafe_allow_html=True)
         
         # Display recent posting activity
-        st.write("Recent Posting Activity")
-        st.dataframe(
-            history_df.sort_values('Posted At', ascending=False).head(10),
-            use_container_width=True
+        st.markdown("#### Recent Posting Activity")
+        recent_posts = history_df.sort_values('Posted At', ascending=False).head(10)
+        recent_posts_html = recent_posts.to_html(
+            index=False,
+            classes=['styled-table'],
+            table_id='recent-posts'
+        )
+        custom_scrollable_region(
+            f"""
+            <div role="region" aria-label="Recent posting activity">
+                {recent_posts_html}
+            </div>
+            """,
+            max_height="400px",
+            label="Recent posts",
+            key="recent_posts"
         )
         
-        # Show posting activity over time
-        st.write("Posting Activity Over Time")
+        # Show posting activity over time with accessible timeline
+        st.markdown("#### Posting Activity Over Time")
         history_df['Posted At'] = pd.to_datetime(history_df['Posted At'])
         daily_posts = history_df.resample('D', on='Posted At').size()
-        st.line_chart(daily_posts)
+        
+        timeline_html = """
+            <div role="region" aria-label="Posting activity timeline" style="margin: 1rem 0;">
+                <table class="styled-table" style="width: 100%;">
+                    <caption style="font-weight: bold; margin-bottom: 0.5rem;">Daily Posting Activity</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Posts</th>
+                            <th scope="col">Activity Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        """
+        
+        max_posts = daily_posts.max()
+        for date, count in daily_posts.items():
+            percentage = (count / max_posts) * 100 if max_posts > 0 else 0
+            timeline_html += f"""
+                <tr>
+                    <th scope="row">{date.strftime('%Y-%m-%d')}</th>
+                    <td>{count}</td>
+                    <td>
+                        <div style="
+                            width: {percentage}%;
+                            height: 24px;
+                            background: linear-gradient(135deg, #2E7D32, #43A047);
+                            border-radius: 4px;
+                            position: relative;
+                        " role="img" aria-label="Posts on {date.strftime('%Y-%m-%d')}: {count}">
+                            <span style="
+                                position: absolute;
+                                left: 8px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                color: white;
+                                font-weight: bold;
+                            ">{count}</span>
+                        </div>
+                    </td>
+                </tr>
+            """
+        
+        timeline_html += """
+                    </tbody>
+                </table>
+            </div>
+        """
+        
+        custom_scrollable_region(
+            timeline_html,
+            max_height="400px",
+            label="Posting timeline",
+            key="posting_timeline"
+        )
 
 def view_database():
     """View and manage the SQLite database."""
@@ -1282,6 +1613,7 @@ def auto_schedule_posts():
             
             # Apply filters
             mask = (df['media_type'].isin(media_types)) & (df['score'] >= min_score)
+            
             filtered_df = df[mask].copy()
             
             # Content selection
@@ -1679,51 +2011,131 @@ def view_posted_content():
     finally:
         conn.close()
 
+@make_accessible
 def main():
-    # Update main header
+    # Update main header with accessible components
     st.markdown("""
-        <div style='text-align: center; padding: 2rem 0;'>
-            <h1 style='color: #2E3192; font-size: 2.5rem; margin-bottom: 0.5rem;'>🐱 Cat Content Manager</h1>
-            <p style='color: #666; font-size: 1.1rem;'>Analyze, Schedule, and Share Your Cat Content</p>
+        <h1 style="font-size: 2.5rem; font-weight: bold; background: linear-gradient(135deg, #2E7D32, #43A047); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            🐱 Cat Content Manager
+        </h1>
+        <p style="color: #666666; font-size: 1.1rem;">
+            Analyze, Schedule, and Share Your Cat Content
+        </p>
+    """, unsafe_allow_html=True)
+    
+    # Add accessible header buttons with proper ARIA labels and roles
+    col1, col2 = st.columns([6, 1])
+    with col2:
+        st.markdown("""
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                <button
+                    class="header-button"
+                    role="button"
+                    aria-label="Open Settings"
+                    title="Open Settings"
+                    onclick="window.parent.postMessage({type: 'streamlit:message', action: 'headerButtonClicked', key: 'settings_button'}, '*')"
+                    style="
+                        min-height: 44px;
+                        padding: 8px 16px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        font-weight: 600;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        background: linear-gradient(135deg, #2E7D32, #43A047);
+                        color: #FFFFFF;
+                        border: none;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    "
+                >
+                    <span aria-hidden="true" style="font-size: 1.2rem;">⚙️</span>
+                    <span style="font-size: 1rem;">Settings</span>
+                </button>
+                <button
+                    class="header-button"
+                    role="button"
+                    aria-label="Get Help"
+                    title="Get Help"
+                    onclick="window.parent.postMessage({type: 'streamlit:message', action: 'headerButtonClicked', key: 'help_button'}, '*')"
+                    style="
+                        min-height: 44px;
+                        padding: 8px 16px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 8px;
+                        font-weight: 600;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        background: linear-gradient(135deg, #2E7D32, #43A047);
+                        color: #FFFFFF;
+                        border: none;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    "
+                >
+                    <span aria-hidden="true" style="font-size: 1.2rem;">❓</span>
+                    <span style="font-size: 1rem;">Help</span>
+                </button>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # Override Streamlit's main menu button styles and ARIA attributes
+    st.markdown("""
+        <style>
+            /* Fix main menu button accessibility */
+            [data-testid="stMainMenu"] {
+                visibility: hidden;
+                position: absolute;
+            }
+            
+            /* Custom accessible menu button */
+            .custom-menu-button {
+                position: fixed;
+                top: 0.5rem;
+                right: 0.5rem;
+                z-index: 1000;
+            }
+        </style>
+        
+        <div class="custom-menu-button">
+            <button
+                role="button"
+                aria-label="Main menu"
+                title="Main menu"
+                onclick="document.querySelector('[data-testid=stMainMenu]').click()"
+                style="
+                    min-height: 44px;
+                    padding: 8px 16px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    font-weight: 600;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    background: linear-gradient(135deg, #2E7D32, #43A047);
+                    color: #FFFFFF;
+                    border: none;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                "
+            >
+                <span aria-hidden="true" style="font-size: 1.2rem;">≡</span>
+                <span style="font-size: 1rem;">Menu</span>
+            </button>
         </div>
     """, unsafe_allow_html=True)
     
-    # Update section headers
-    st.header("Content Analysis")
-    st.header("Content Manager")
-    st.header("Analytics Dashboard")
-    
-    # Update subheaders
-    st.subheader("Content History")
-    st.subheader("Recent Activity")
-    st.subheader("Platform Distribution")
-    
-    # Cleanup old temp files
-    def cleanup_old_temp_files():
-        """Clean up temporary files older than 24 hours."""
-        temp_dir = Path("temp")
-        if temp_dir.exists():
-            current_time = datetime.now()
-            for temp_file in temp_dir.glob("temp_*"):
-                file_age = current_time - datetime.fromtimestamp(temp_file.stat().st_mtime)
-                if file_age > timedelta(hours=24) and str(temp_file) not in [
-                    analysis.get('file_path') for analysis in st.session_state.analyzed_content
-                ]:
-                    try:
-                        temp_file.unlink()
-                    except Exception as e:
-                        print(f"Error cleaning up {temp_file}: {e}")
-    
-    # Run cleanup at startup
-    cleanup_old_temp_files()
-    
-    # Sidebar navigation with improved styling
+    # Sidebar navigation with improved accessibility
     with st.sidebar:
         st.markdown("""
-            <div style='text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2E7D32, #43A047); padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
-                <img src='https://placekitten.com/150/150' style='border-radius: 50%; margin-bottom: 1rem; border: 4px solid var(--light-text); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
-                <h3 style='color: var(--light-text); margin: 0; font-size: 1.5rem; font-weight: 600;'>Control Center</h3>
-            </div>
+            <nav role="navigation" aria-label="Main navigation">
+                <div style='text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2E7D32, #43A047); padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
+                    <img src='https://placekitten.com/150/150' alt='Decorative cat image' style='border-radius: 50%; margin-bottom: 1rem; border: 4px solid #FFFFFF; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                    <h2 style='color: #FFFFFF; margin: 0; font-size: 1.5rem; font-weight: 600;'>Control Center</h2>
+                </div>
+            </nav>
         """, unsafe_allow_html=True)
         
         selected = option_menu(
@@ -1759,48 +2171,25 @@ def main():
                 },
                 "nav-link-selected": {
                     "background": "linear-gradient(135deg, #2E7D32, #43A047)",
-                    "color": "var(--light-text)",
+                    "color": "#FFFFFF",
                     "font-weight": "600",
                     "box-shadow": "0 2px 4px rgba(0, 0, 0, 0.1)"
-                },
-                "nav-link:hover": {
-                    "background-color": "#A5D6A7",
-                    "color": "#1A1A1A",
-                    "transform": "translateX(5px)"
                 }
             }
         )
-        
-        # Add additional sidebar content
-        st.markdown("""
-            <div style='margin-top: 2rem; padding: 1.5rem; background: #E8F5E9; border-radius: 10px; border: 1px solid rgba(46, 125, 50, 0.2);'>
-                <h4 style='color: #2E7D32; margin-bottom: 0.5rem; font-size: 1rem;'>Quick Tips</h4>
-                <ul style='color: #1A1A1A; margin: 0; padding-left: 1.2rem; font-size: 0.9rem;'>
-                    <li>Analyze content before posting</li>
-                    <li>Schedule posts for optimal times</li>
-                    <li>Monitor analytics regularly</li>
-                    <li>Keep database organized</li>
-                </ul>
-            </div>
-            
-            <div style='margin-top: 1rem; text-align: center; padding: 1rem;'>
-                <p style='color: #1A1A1A; font-size: 0.8rem; opacity: 0.8;'>
-                    🐱 Cat Content Manager v1.0
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
     
     if selected == "Content Analysis":
-        st.header("Content Analysis")
+        st.markdown("### Content Analysis")
         
         uploaded_files = st.file_uploader(
             "Upload cat media files",
             accept_multiple_files=True,
-            type=['png', 'jpg', 'jpeg', 'mp4', 'mov', 'avi']
+            type=['png', 'jpg', 'jpeg', 'mp4', 'mov', 'avi'],
+            help="Select image or video files of cats to analyze"
         )
         
         if uploaded_files:
-            if st.button("Analyze Content"):
+            if st.button("Analyze Content", help="Click to analyze uploaded content"):
                 with st.spinner("Analyzing content..."):
                     results = analyze_media(uploaded_files)
                     
@@ -1816,18 +2205,35 @@ def main():
         auto_schedule_posts()
     
     elif selected == "Post Manager":
-        st.header("Content Manager")
+        st.markdown("### Content Manager")
         manage_pending_posts()
     
     elif selected == "Posted Content":
         view_posted_content()
     
     elif selected == "Analytics":
-        st.header("Analytics")
+        st.markdown("### Analytics")
         view_analytics()
     
     elif selected == "Database Manager":
         view_database()
+
+    # Add keyboard instructions
+    st.markdown("""
+        <div role="complementary" aria-label="Keyboard navigation instructions">
+            <h3>Keyboard Navigation</h3>
+            <ul>
+                <li>Use Tab to move between interactive elements</li>
+                <li>Use Enter or Space to activate buttons</li>
+                <li>Use Arrow keys to navigate within scrollable regions</li>
+                <li>Use Page Up/Down for faster scrolling</li>
+                <li>Use Home/End to jump to start/end of scrollable content</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Close main landmark
+    st.markdown('</main>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main() 
