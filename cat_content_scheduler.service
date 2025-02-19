@@ -1,0 +1,16 @@
+[Unit]
+Description=Cat Content Scheduler Service
+After=network.target redis.service
+
+[Service]
+Type=simple
+User=omarmaarouf
+Group=omarmaarouf
+WorkingDirectory=/Users/omarmaarouf/Bugz-the-cat
+Environment=PATH=/Users/omarmaarouf/Bugz-the-cat/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/Users/omarmaarouf/Bugz-the-cat/venv/bin/celery -A scheduler_service worker -B --loglevel=info
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target 

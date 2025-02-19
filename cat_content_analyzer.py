@@ -97,7 +97,23 @@ class CatContentAnalyzer:
                 platform TEXT,
                 status TEXT,
                 posted_at DATETIME,
+                error_message TEXT,
+                updated_at DATETIME,
                 FOREIGN KEY (analysis_id) REFERENCES content_analysis (id)
+            )
+            ''')
+
+            cursor.execute('''
+            CREATE TABLE IF NOT EXISTS engagement_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id INTEGER,
+                platform TEXT,
+                likes INTEGER DEFAULT 0,
+                comments INTEGER DEFAULT 0,
+                shares INTEGER DEFAULT 0,
+                views INTEGER DEFAULT 0,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES content_analysis (id)
             )
             ''')
             conn.commit()
@@ -568,9 +584,8 @@ class CatContentAnalyzer:
             }, f, indent=2, default=str)
 
     def __del__(self):
-        """Close database connection when object is destroyed."""
-        if hasattr(self, 'conn'):
-            self.conn.close()
+        """Cleanup method - no need to close connection as we're using context managers."""
+        pass
 
 def main():
     analyzer = CatContentAnalyzer()

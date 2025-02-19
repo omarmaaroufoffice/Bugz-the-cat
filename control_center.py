@@ -45,6 +45,7 @@ st.markdown("""
         --card-bg-color: #C8E6C9;
         --gradient-start: #2E7D32;
         --gradient-end: #43A047;
+        --light-text: #F8FFF9;
     }
 
     /* Global styles */
@@ -66,7 +67,7 @@ st.markdown("""
     /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        color: #E8F5E9;
+        color: var(--light-text);
         border-radius: 8px;
         padding: 0.5rem 1rem;
         font-weight: 500;
@@ -129,7 +130,7 @@ st.markdown("""
     /* Expanders */
     .streamlit-expanderHeader {
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        color: #E8F5E9;
+        color: var(--light-text);
         border-radius: 8px;
         padding: 0.75rem 1rem;
         font-weight: 500;
@@ -155,7 +156,7 @@ st.markdown("""
     /* Success messages */
     .element-container .stAlert {
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        color: #E8F5E9;
+        color: var(--light-text);
         padding: 1rem;
         border-radius: 8px;
         margin: 1rem 0;
@@ -163,7 +164,7 @@ st.markdown("""
 
     .element-container .stSuccess {
         background: linear-gradient(135deg, #28A745, #20C997);
-        color: #E8F5E9;
+        color: var(--light-text);
     }
 
     /* Warning messages */
@@ -175,13 +176,13 @@ st.markdown("""
     /* Error messages */
     .element-container .stError {
         background: linear-gradient(135deg, #DC3545, #C82333);
-        color: #E8F5E9;
+        color: var(--light-text);
     }
 
     /* Info messages */
     .element-container .stInfo {
         background: linear-gradient(135deg, #17A2B8, #138496);
-        color: #E8F5E9;
+        color: var(--light-text);
     }
 
     /* Tabs */
@@ -203,7 +204,7 @@ st.markdown("""
 
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        color: #E8F5E9 !important;
+        color: var(--light-text) !important;
         border-radius: 6px;
     }
 
@@ -226,7 +227,7 @@ st.markdown("""
     /* Progress bars */
     .stProgress > div > div > div {
         background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
-        color: #E8F5E9;
+        color: var(--light-text);
     }
 
     /* Charts */
@@ -301,15 +302,83 @@ if not temp_dir.exists():
 
 def load_and_display_media(file_path):
     """Load and display media file."""
-    file_path = Path(file_path)
-    if not file_path.exists():
-        st.error(f"Media file not found: {file_path}")
+    try:
+        file_path = Path(file_path)
+        if not file_path.exists():
+            st.error(f"Media file not found: {file_path}")
+            return
+        
+        if file_path.suffix.lower() in ['.mp4', '.mov', '.avi']:
+            return st.video(str(file_path))
+        else:
+            # Open and verify the image
+            try:
+                # First try to open and validate the image
+                with Image.open(file_path) as img:
+                    # Verify the image
+                    img.verify()
+                
+                # Reopen the image for processing (verify closes the file)
+                img = Image.open(file_path)
+                
+                # Convert to RGB if necessary before any processing
+                if img.mode in ('RGBA', 'P'):
+                    img = img.convert('RGB')
+                
+                # Get and validate image dimensions
+                width, height = img.size
+                if width <= 0 or height <= 0:
+                    st.error(f"Invalid image dimensions: {width}x{height}")
+                    return
+                
+                # Calculate new dimensions while preserving aspect ratio
+                max_width = 800  # Maximum display width
+                max_height = 1200  # Maximum display height
+                
+                # Calculate scale factors for both width and height
+                width_scale = max_width / width if width > max_width else 1
+                height_scale = max_height / height if height > max_height else 1
+                
+                # Use the smaller scale factor to ensure image fits within bounds
+                scale = min(width_scale, height_scale)
+                
+                # Calculate new dimensions
+                if scale < 1:  # Only resize if image is too large
+                    new_width = max(1, int(width * scale))
+                    new_height = max(1, int(height * scale))
+                    
+                    try:
+                        # Resize image
+                        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                    except Exception as e:
+                        st.warning(f"Error during resize, displaying original image: {str(e)}")
+                
+                # Display the image
+                try:
+                    return st.image(img, use_column_width=True)
+                except Exception as e:
+                    # If streamlit display fails, try converting to bytes
+                    try:
+                        import io
+                        img_byte_arr = io.BytesIO()
+                        img.save(img_byte_arr, format='JPEG')
+                        img_byte_arr = img_byte_arr.getvalue()
+                        return st.image(img_byte_arr, use_column_width=True)
+                    except Exception as e2:
+                        st.error(f"Failed to display image: {str(e2)}")
+                        return
+                        
+            except Exception as e:
+                st.error(f"Error processing image {file_path.name}: {str(e)}")
+                # Try to display the original file as a last resort
+                try:
+                    return st.image(str(file_path), use_column_width=True)
+                except:
+                    st.error("Failed to display image in any format")
+                    return
+    except Exception as e:
+        st.error(f"Error loading media: {str(e)}")
         return
-    
-    if file_path.suffix.lower() in ['.mp4', '.mov', '.avi']:
-        return st.video(str(file_path))
-    else:
-        return st.image(str(file_path))
 
 def analyze_media(uploaded_files):
     """Analyze uploaded media files."""
@@ -1156,167 +1225,459 @@ def auto_schedule_posts():
     
     with col1:
         st.subheader("Content Selection")
-        uploaded_files = st.file_uploader(
-            "Upload content for auto-scheduling",
-            accept_multiple_files=True,
-            type=['png', 'jpg', 'jpeg', 'mp4', 'mov', 'avi']
-        )
         
-        # Platform selection (limited to Instagram and Twitter)
-        platforms = st.multiselect(
-            "Select platforms for auto-posting",
-            ['Instagram', 'Twitter'],
-            default=['Instagram', 'Twitter']
-        )
+        # Connect to database
+        conn = sqlite3.connect('cat_content.db')
+        cursor = conn.cursor()
         
-        # Time range selection
-        st.subheader("Posting Time Range")
-        col_start, col_end = st.columns(2)
-        with col_start:
-            start_time = st.time_input("Start posting from", value=datetime.strptime("09:00", "%H:%M").time())
-        with col_end:
-            end_time = st.time_input("End posting at", value=datetime.strptime("21:00", "%H:%M").time())
-        
-        # Days selection
-        days = st.multiselect(
-            "Select posting days",
-            ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-            default=['Monday', 'Wednesday', 'Friday']
-        )
-        
-        # Posts per day
-        posts_per_day = st.slider("Posts per day", 1, 5, 2)
-        
-        # Minimum gap between posts
-        min_gap_hours = st.slider("Minimum hours between posts", 2, 8, 4)
+        try:
+            # Get all analyzed content that hasn't been posted yet or was posted more than 30 days ago
+            cursor.execute("""
+                SELECT 
+                    ca.id, 
+                    ca.original_filename, 
+                    ca.media_type, 
+                    ca.total_score,
+                    ca.caption, 
+                    ca.hashtags, 
+                    ca.file_path,
+                    ca.engagement_tips,
+                    ca.key_strengths,
+                    ca.improvement_suggestions,
+                    GROUP_CONCAT(DISTINCT ph.platform) as posted_platforms,
+                    MAX(ph.posted_at) as last_posted
+                FROM content_analysis ca
+                LEFT JOIN posting_history ph ON ca.id = ph.analysis_id
+                GROUP BY ca.id
+                HAVING last_posted IS NULL 
+                    OR datetime(last_posted) < datetime('now', '-30 days')
+                ORDER BY ca.total_score DESC
+            """)
+            available_content = cursor.fetchall()
+            
+            if not available_content:
+                st.warning("No content available for scheduling. Please analyze some content first.")
+                return
+            
+            # Create DataFrame for content selection
+            df = pd.DataFrame(available_content, columns=[
+                'id', 'filename', 'media_type', 'score', 'caption', 
+                'hashtags', 'file_path', 'engagement_tips', 'key_strengths',
+                'improvement_suggestions', 'posted_platforms', 'last_posted'
+            ])
+            
+            # Content filters
+            st.write("Filter Content")
+            col_filter1, col_filter2 = st.columns(2)
+            
+            with col_filter1:
+                media_types = st.multiselect(
+                    "Media Type",
+                    df['media_type'].unique(),
+                    default=df['media_type'].unique()
+                )
+            
+            with col_filter2:
+                min_score = st.slider("Minimum Score", 0, 50, 30)
+            
+            # Apply filters
+            mask = (df['media_type'].isin(media_types)) & (df['score'] >= min_score)
+            filtered_df = df[mask].copy()
+            
+            # Content selection
+            selected_content = st.multiselect(
+                "Select content to schedule",
+                filtered_df['filename'].tolist(),
+                default=filtered_df['filename'].head(5).tolist(),
+                help="Choose the content you want to schedule. Selected content will be scheduled based on quality score."
+            )
+            
+            if not selected_content:
+                st.warning("Please select at least one piece of content to schedule.")
+                return
+            
+            # Get selected content data
+            selected_df = filtered_df[filtered_df['filename'].isin(selected_content)]
+            
+            # Platform selection (limited to Instagram and Twitter)
+            platforms = st.multiselect(
+                "Select platforms for auto-posting",
+                ['Instagram', 'Twitter'],
+                default=['Instagram', 'Twitter']
+            )
+            
+            # Time range selection
+            st.subheader("Posting Schedule")
+            col_time1, col_time2 = st.columns(2)
+            with col_time1:
+                start_time = st.time_input("Start posting from", value=datetime.strptime("09:00", "%H:%M").time())
+            with col_time2:
+                end_time = st.time_input("End posting at", value=datetime.strptime("21:00", "%H:%M").time())
+            
+            # Days selection
+            days = st.multiselect(
+                "Select posting days",
+                ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                default=['Monday', 'Wednesday', 'Friday']
+            )
+            
+            # Posts per day
+            posts_per_day = st.slider("Posts per day", 1, 5, 2)
+            
+            # Minimum gap between posts
+            min_gap_hours = st.slider("Minimum hours between posts", 2, 8, 4)
+            
+            # Generate schedule button
+            generate_schedule = st.button("Generate Schedule", type="primary")
+            
+        except Exception as e:
+            st.error(f"Error accessing database: {e}")
+            return
+        finally:
+            conn.close()
     
     with col2:
-        if uploaded_files:
-            st.subheader("Generated Timeline")
+        if generate_schedule and selected_content:
+            st.subheader("Generated Schedule")
             
-            # Analyze content and create schedule
-            analyzed_content = []
-            for file in uploaded_files:
-                # Save file temporarily
-                temp_path = Path("temp") / f"auto_schedule_{file.name}"
-                with open(temp_path, "wb") as f:
-                    f.write(file.getbuffer())
-                
-                try:
-                    # Analyze content
-                    analysis = st.session_state.analyzer.analyze_media(str(temp_path))
-                    analysis['original_filename'] = file.name
-                    analyzed_content.append(analysis)
-                except Exception as e:
-                    st.error(f"Error analyzing {file.name}: {e}")
+            # Sort selected content by score
+            selected_df = selected_df.sort_values('score', ascending=False)
             
-            if analyzed_content:
-                # Sort content by total score
-                analyzed_content.sort(key=lambda x: x['total_score'], reverse=True)
-                
-                # Generate posting schedule
-                schedule = []
-                current_date = datetime.now(pytz.UTC).date()
-                
-                # Create schedule for next 7 days
-                for _ in range(7):
-                    if current_date.strftime('%A') in days:
-                        # Calculate posting times for the day
-                        day_start = datetime.combine(current_date, start_time)
-                        day_end = datetime.combine(current_date, end_time)
-                        
-                        # Divide time range into equal intervals
-                        time_range = (day_end - day_start).seconds / 3600
-                        interval = max(time_range / posts_per_day, min_gap_hours)
-                        
-                        for i in range(posts_per_day):
-                            post_time = day_start + timedelta(hours=i * interval)
-                            if analyzed_content:
-                                content = analyzed_content.pop(0)
-                                schedule.append({
-                                    'datetime': post_time,
-                                    'content': content,
-                                    'platforms': platforms
-                                })
-                                
-                                # Rotate content back to the end if we need more posts
-                                analyzed_content.append(content)
+            # Generate posting schedule
+            schedule = []
+            current_date = datetime.now(pytz.UTC).date()
+            content_index = 0
+            
+            # Create schedule for next 7 days
+            for _ in range(7):
+                if current_date.strftime('%A') in days:
+                    # Calculate posting times for the day
+                    day_start = datetime.combine(current_date, start_time)
+                    day_end = datetime.combine(current_date, end_time)
                     
-                    current_date += timedelta(days=1)
+                    # Divide time range into equal intervals
+                    time_range = (day_end - day_start).seconds / 3600
+                    interval = max(time_range / posts_per_day, min_gap_hours)
+                    
+                    for i in range(posts_per_day):
+                        if content_index < len(selected_df):
+                            post_time = day_start + timedelta(hours=i * interval)
+                            content = selected_df.iloc[content_index]
+                            
+                            schedule.append({
+                                'datetime': post_time,
+                                'content': {
+                                    'id': content['id'],
+                                    'original_filename': content['filename'],
+                                    'file_path': content['file_path'],
+                                    'media_type': content['media_type'],
+                                    'total_score': content['score'],
+                                    'caption': content['caption'],
+                                    'hashtags': content['hashtags'],
+                                    'engagement_tips': content['engagement_tips'],
+                                    'key_strengths': content['key_strengths'],
+                                    'improvement_suggestions': content['improvement_suggestions']
+                                },
+                                'platforms': platforms
+                            })
+                            
+                            content_index = (content_index + 1) % len(selected_df)
                 
-                # Display timeline
-                for post in schedule:
-                    with st.expander(
-                        f"📅 {post['datetime'].strftime('%A, %B %d, %I:%M %p')} - {post['content']['original_filename']}", 
-                        expanded=True
-                    ):
-                        col1, col2 = st.columns([1, 2])
-                        
-                        with col1:
-                            # Display media preview
+                current_date += timedelta(days=1)
+            
+            # Display timeline
+            for post in schedule:
+                post_expander = st.expander(
+                    f"📅 {post['datetime'].strftime('%A, %B %d, %I:%M %p')} - {post['content']['original_filename']}", 
+                    expanded=True
+                )
+                
+                with post_expander:
+                    col1, col2 = st.columns([1, 2])
+                    
+                    with col1:
+                        # Display media preview
+                        try:
                             if post['content']['media_type'] == 'video':
                                 st.video(post['content']['file_path'])
                             else:
                                 st.image(post['content']['file_path'])
+                        except Exception as e:
+                            st.error(f"Error loading media: {e}")
+                    
+                    with col2:
+                        # Display and allow editing of post details
+                        platforms_str = " & ".join(post['platforms'])
+                        st.write(f"🎯 Posting to: {platforms_str}")
+                        st.write(f"📊 Content Score: {post['content']['total_score']}/50")
                         
-                        with col2:
-                            # Display and allow editing of post details
-                            platforms_str = " & ".join(post['platforms'])
-                            st.write(f"🎯 Posting to: {platforms_str}")
-                            st.write(f"📊 Content Score: {post['content']['total_score']}/50")
-                            
-                            # Editable caption and hashtags
-                            edited_caption = st.text_area(
-                                "Edit Caption",
-                                post['content']['caption'],
-                                key=f"caption_{post['datetime']}_{post['content']['file_path']}"
-                            )
-                            edited_hashtags = st.text_area(
-                                "Edit Hashtags",
-                                post['content']['hashtags'],
-                                key=f"hashtags_{post['datetime']}_{post['content']['file_path']}"
-                            )
-                            
-                            # Update post data with edits
-                            post['content']['caption'] = edited_caption
-                            post['content']['hashtags'] = edited_hashtags
-                            
-                            # Approval button
-                            if st.button("✅ Approve Post", key=f"approve_{post['datetime']}_{post['content']['file_path']}"):
-                                try:
-                                    # Add to pending posts
-                                    scheduled_post = {
-                                        'analysis': post['content'],
-                                        'platforms': [p.lower() for p in post['platforms']],
-                                        'scheduled_time': post['datetime'].replace(tzinfo=pytz.UTC),
-                                        'status': 'pending'
-                                    }
-                                    st.session_state.pending_posts.append(scheduled_post)
-                                    st.success("Post approved and scheduled!")
-                                except Exception as e:
-                                    st.error(f"Error scheduling post: {e}")
+                        # Editable caption and hashtags
+                        edited_caption = st.text_area(
+                            "Edit Caption",
+                            post['content']['caption'],
+                            key=f"caption_{post['datetime']}_{post['content']['id']}"
+                        )
+                        edited_hashtags = st.text_area(
+                            "Edit Hashtags",
+                            post['content']['hashtags'],
+                            key=f"hashtags_{post['datetime']}_{post['content']['id']}"
+                        )
+                        
+                        # Update post data with edits
+                        post['content']['caption'] = edited_caption
+                        post['content']['hashtags'] = edited_hashtags
+                        
+                        # Show content insights
+                        st.write("💡 Engagement Tips:", post['content']['engagement_tips'])
+                        st.write("💪 Key Strengths:", post['content']['key_strengths'])
+                        st.write("📈 Improvement Suggestions:", post['content']['improvement_suggestions'])
+                        
+                        # Approval button
+                        if st.button("✅ Approve Post", key=f"approve_{post['datetime']}_{post['content']['id']}"):
+                            try:
+                                # Add to pending posts
+                                scheduled_post = {
+                                    'analysis': post['content'],
+                                    'platforms': [p.lower() for p in post['platforms']],
+                                    'scheduled_time': post['datetime'].replace(tzinfo=pytz.UTC),
+                                    'status': 'pending'
+                                }
+                                st.session_state.pending_posts.append(scheduled_post)
+                                st.success("Post approved and scheduled!")
+                            except Exception as e:
+                                st.error(f"Error scheduling post: {e}")
+            
+            # Add download schedule button
+            schedule_df = pd.DataFrame([
+                {
+                    'Date': post['datetime'].strftime('%Y-%m-%d'),
+                    'Time': post['datetime'].strftime('%I:%M %p'),
+                    'File': post['content']['original_filename'],
+                    'Platforms': ' & '.join(post['platforms']),
+                    'Caption': post['content']['caption'],
+                    'Hashtags': post['content']['hashtags'],
+                    'Score': post['content']['total_score']
+                }
+                for post in schedule
+            ])
+            
+            csv = schedule_df.to_csv(index=False)
+            st.download_button(
+                "📥 Download Schedule as CSV",
+                csv,
+                "posting_schedule.csv",
+                "text/csv",
+                key='download_schedule'
+            )
+
+def view_posted_content():
+    """Display all posted content with details and metrics."""
+    st.header("Posted Content History")
+    
+    # Connect to database
+    conn = sqlite3.connect('cat_content.db')
+    cursor = conn.cursor()
+    
+    try:
+        # Get all successfully posted content
+        cursor.execute("""
+            SELECT 
+                ca.id,
+                ca.original_filename,
+                ca.media_type,
+                ca.total_score,
+                ca.caption,
+                ca.hashtags,
+                ca.file_path,
+                ph.platform,
+                ph.posted_at,
+                ph.status,
+                ph.id as post_history_id
+            FROM content_analysis ca
+            JOIN posting_history ph ON ca.id = ph.analysis_id
+            WHERE ph.status = 'success'
+            ORDER BY ph.posted_at DESC
+        """)
+        posts = cursor.fetchall()
+        
+        if not posts:
+            st.info("No posted content found in the history.")
+            return
+        
+        # Group posts by date
+        from itertools import groupby
+        from datetime import datetime
+        
+        # Convert posts to list of dicts for easier handling
+        posts_data = []
+        for p in posts:
+            try:
+                # Handle different datetime string formats
+                posted_at_str = p[8]
+                try:
+                    # Try parsing with timezone
+                    posted_at = datetime.strptime(posted_at_str.split('+')[0], '%Y-%m-%d %H:%M:%S.%f')
+                except ValueError:
+                    try:
+                        # Try parsing without microseconds
+                        posted_at = datetime.strptime(posted_at_str.split('+')[0], '%Y-%m-%d %H:%M:%S')
+                    except ValueError:
+                        # If all else fails, try basic format
+                        posted_at = datetime.strptime(posted_at_str, '%Y-%m-%d %H:%M:%S')
                 
-                # Add download schedule button
-                schedule_df = pd.DataFrame([
-                    {
-                        'Date': post['datetime'].strftime('%Y-%m-%d'),
-                        'Time': post['datetime'].strftime('%I:%M %p'),
-                        'File': post['content']['original_filename'],
-                        'Platforms': ' & '.join(post['platforms']),
-                        'Caption': post['content']['caption'],
-                        'Hashtags': post['content']['hashtags']
-                    }
-                    for post in schedule
-                ])
+                posts_data.append({
+                    'id': p[0],
+                    'filename': p[1],
+                    'media_type': p[2],
+                    'score': p[3],
+                    'caption': p[4],
+                    'hashtags': p[5],
+                    'file_path': p[6],
+                    'platform': p[7],
+                    'posted_at': posted_at,
+                    'status': p[9],
+                    'post_history_id': p[10]  # Add unique post history ID
+                })
+            except Exception as e:
+                st.warning(f"Skipping post due to date parsing error: {e}")
+                continue
+        
+        # Sort posts by date
+        posts_data.sort(key=lambda x: x['posted_at'], reverse=True)
+        
+        # Group by date
+        current_date = None
+        for post in posts_data:
+            post_date = post['posted_at'].date()
+            
+            # Create new date section if date changes
+            if post_date != current_date:
+                if current_date is not None:
+                    st.divider()
+                current_date = post_date
                 
-                csv = schedule_df.to_csv(index=False)
-                st.download_button(
-                    "📥 Download Schedule as CSV",
-                    csv,
-                    "posting_schedule.csv",
-                    "text/csv",
-                    key='download_schedule'
-                )
+                # Create date header with post count
+                same_day_posts = [p for p in posts_data if p['posted_at'].date() == post_date]
+                st.subheader(f"📅 {post_date.strftime('%B %d, %Y')} ({len(same_day_posts)} posts)")
+                
+                # Create columns for filters
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    platform_filter = st.multiselect(
+                        "Filter by platform",
+                        list(set(p['platform'] for p in same_day_posts)),
+                        key=f"platform_filter_{post_date}"
+                    )
+                with col2:
+                    media_filter = st.multiselect(
+                        "Filter by media type",
+                        list(set(p['media_type'] for p in same_day_posts)),
+                        key=f"media_filter_{post_date}"
+                    )
+                with col3:
+                    min_score = st.slider(
+                        "Minimum score",
+                        0, 50, 0,
+                        key=f"score_filter_{post_date}"
+                    )
+                
+                # Apply filters
+                filtered_posts = [
+                    p for p in same_day_posts
+                    if (not platform_filter or p['platform'] in platform_filter)
+                    and (not media_filter or p['media_type'] in media_filter)
+                    and p['score'] >= min_score
+                ]
+                
+                # Display posts in a grid
+                cols = st.columns(3)
+                for i, post in enumerate(filtered_posts):
+                    with cols[i % 3]:
+                        st.markdown(f"### 🎯 {post['platform'].title()} - {post['posted_at'].strftime('%I:%M %p')}")
+                        try:
+                            # Check if media file exists
+                            file_path = Path(post['file_path'])
+                            if file_path.exists():
+                                if post['media_type'] == 'video':
+                                    st.video(str(file_path))
+                                else:
+                                    st.image(str(file_path))
+                            else:
+                                # Try to find the file in temp directory
+                                temp_file = Path("temp") / f"reuse_{post['id']}_{post['filename']}"
+                                if temp_file.exists():
+                                    if post['media_type'] == 'video':
+                                        st.video(str(temp_file))
+                                    else:
+                                        st.image(str(temp_file))
+                                else:
+                                    st.warning(f"Media file not found: {post['filename']}")
+                                    # Update the file path in the database to point to temp directory
+                                    cursor.execute("""
+                                        UPDATE content_analysis
+                                        SET file_path = ?
+                                        WHERE id = ?
+                                    """, (str(temp_file), post['id']))
+                                    conn.commit()
+                            
+                            # Post details
+                            st.write(f"**File:** {post['filename']}")
+                            st.write(f"**Score:** {post['score']}/50")
+                            
+                            # Engagement metrics
+                            cursor.execute("""
+                                SELECT likes, comments, shares, views
+                                FROM engagement_metrics
+                                WHERE post_id = ? AND platform = ?
+                            """, (post['id'], post['platform']))
+                            metrics = cursor.fetchone()
+                            
+                            if metrics:
+                                metric_cols = st.columns(4)
+                                with metric_cols[0]:
+                                    st.metric("Likes", metrics[0] or 0)
+                                with metric_cols[1]:
+                                    st.metric("Comments", metrics[1] or 0)
+                                with metric_cols[2]:
+                                    st.metric("Shares", metrics[2] or 0)
+                                with metric_cols[3]:
+                                    st.metric("Views", metrics[3] or 0)
+                            
+                            # Post content
+                            st.markdown("##### 📝 Post Content")
+                            st.markdown("**Caption:**")
+                            st.markdown(f"```\n{post['caption']}\n```")
+                            st.markdown("**Hashtags:**")
+                            st.markdown(f"```\n{post['hashtags']}\n```")
+                            
+                            # Repost button with unique key using post_history_id
+                            if st.button("🔄 Repost", key=f"repost_{post['post_history_id']}"):
+                                # Add to pending posts for reposting
+                                st.session_state.pending_posts.append({
+                                    'analysis': {
+                                        'id': post['id'],
+                                        'file_path': str(file_path) if file_path.exists() else str(temp_file),
+                                        'caption': post['caption'],
+                                        'hashtags': post['hashtags'],
+                                        'media_type': post['media_type'],
+                                        'total_score': post['score']
+                                    },
+                                    'platforms': [post['platform']],
+                                    'scheduled_time': datetime.now(pytz.UTC),
+                                    'status': 'pending'
+                                })
+                                st.success("Added to pending posts! Go to Post Manager to schedule.")
+                            
+                            # Add a divider between posts in the same column
+                            st.divider()
+                            
+                        except Exception as e:
+                            st.error(f"Error displaying post: {e}")
+    
+    except Exception as e:
+        st.error(f"Error accessing database: {e}")
+    finally:
+        conn.close()
 
 def main():
     # Update main header
@@ -1360,15 +1721,15 @@ def main():
     with st.sidebar:
         st.markdown("""
             <div style='text-align: center; margin-bottom: 2rem; background: linear-gradient(135deg, #2E7D32, #43A047); padding: 2rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>
-                <img src='https://placekitten.com/150/150' style='border-radius: 50%; margin-bottom: 1rem; border: 4px solid #E8F5E9; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
-                <h3 style='color: #E8F5E9; margin: 0; font-size: 1.5rem; font-weight: 600;'>Control Center</h3>
+                <img src='https://placekitten.com/150/150' style='border-radius: 50%; margin-bottom: 1rem; border: 4px solid var(--light-text); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);'>
+                <h3 style='color: var(--light-text); margin: 0; font-size: 1.5rem; font-weight: 600;'>Control Center</h3>
             </div>
         """, unsafe_allow_html=True)
         
         selected = option_menu(
             "Navigation",
-            ["Content Analysis", "Create Posts", "Auto Schedule", "Post Manager", "Analytics", "Database Manager"],
-            icons=['camera-fill', 'plus-circle-fill', 'calendar-plus-fill', 'calendar-check-fill', 'graph-up-arrow', 'database-fill'],
+            ["Content Analysis", "Create Posts", "Auto Schedule", "Post Manager", "Posted Content", "Analytics", "Database Manager"],
+            icons=['camera-fill', 'plus-circle-fill', 'calendar-plus-fill', 'calendar-check-fill', 'collection-play-fill', 'graph-up-arrow', 'database-fill'],
             menu_icon="house-door-fill",
             default_index=0,
             styles={
@@ -1398,7 +1759,7 @@ def main():
                 },
                 "nav-link-selected": {
                     "background": "linear-gradient(135deg, #2E7D32, #43A047)",
-                    "color": "#E8F5E9",
+                    "color": "var(--light-text)",
                     "font-weight": "600",
                     "box-shadow": "0 2px 4px rgba(0, 0, 0, 0.1)"
                 },
@@ -1457,6 +1818,9 @@ def main():
     elif selected == "Post Manager":
         st.header("Content Manager")
         manage_pending_posts()
+    
+    elif selected == "Posted Content":
+        view_posted_content()
     
     elif selected == "Analytics":
         st.header("Analytics")

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.bugzthecat.scheduler</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/omarmaarouf/Bugz-the-cat/venv/bin/celery</string>
+        <string>-A</string>
+        <string>scheduler_service</string>
+        <string>worker</string>
+        <string>-B</string>
+        <string>--loglevel=info</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/omarmaarouf/Bugz-the-cat/venv/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/omarmaarouf/Bugz-the-cat</string>
+    </dict>
+    <key>WorkingDirectory</key>
+    <string>/Users/omarmaarouf/Bugz-the-cat</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/omarmaarouf/Bugz-the-cat/logs/scheduler.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/omarmaarouf/Bugz-the-cat/logs/scheduler.error.log</string>
+    <key>UserName</key>
+    <string>omarmaarouf</string>
+</dict>
+</plist> 
